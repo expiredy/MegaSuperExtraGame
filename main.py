@@ -33,11 +33,15 @@ class Card:
 def dice(start=1, end=7):
     return random.randrange(start, end)
 
+def card_distribution(passed_cards):
+    pass
+
+
 
 def main_menu_script():
     global main_menu_is_active, fps
     start_button = Button('Start', 10, 20, 200, 100, func=game_active, outline_lenth=10,
-                          color_of_outline=(255,255,255))
+                          color_of_outline=(255, 255, 255))
     settings_button = Button('Settings', 225, 125, 200, 100, func=settings)
     while main_menu_is_active:
         for event in pygame.event.get():
@@ -53,10 +57,22 @@ def main_menu_script():
         clock.tick(fps)
 
 def game_active():
-    global game_is_continue, main_menu_is_active, fps
+    global game_is_continue, main_menu_is_active, waiting_for_start, fps
     main_menu_is_active = False
     game_is_continue = True
     window.fill((0, 0, 0))
+    start_button = Button('Start', 10, 20, 200, 100, func=game_active, outline_lenth=10,
+                          color_of_outline=(255, 255, 255))
+    while waiting_for_start():
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                print('UP')
+            elif event.type == pygame.KEYDOWN:
+                pass
+        pygame.display.flip()
+        clock.tick(fps)
+
+
     while game_is_continue:
         for event in pygame.event.get():
             if event.type == pygame.KEYUP:
@@ -66,32 +82,35 @@ def game_active():
         pygame.display.flip()
         clock.tick(fps)
 
+
 def settings():
     pass
 
-
-fps = 120
-clock = pygame.time.Clock()
-width, height = monitor.width, monitor.height
-size = width, height
-pygame.init()
-window = pygame.display.set_mode(size)
-pygame.display.flip()
-clock.tick(fps)
-game_is_continue = False
-main_menu_is_active = True
-
-
-# con = sqlite3.connect("cards.db")
-# cur = con.cursor()
-# result = cur.execute("""SELECT * FROM card
-#             WHERE type = "yourself" """).fetchall()
-#
-# for id in result:
-#     print(id)
-# con.close()
+if __name__ == '__main__':
+    fps = 120
+    clock = pygame.time.Clock()
+    width, height = monitor.width, monitor.height
+    size = width, height
+    pygame.init()
+    window = pygame.display.set_mode(size)
+    pygame.display.flip()
+    clock.tick(fps)
+    game_is_continue = False
+    waiting_for_start = False
+    main_menu_is_active = True
 
 
-print(dice())
-main_menu_script()
-pygame.quit()
+
+    # con = sqlite3.connect("cards.db")
+    # cur = con.cursor()
+    # result = cur.execute("""SELECT * FROM card
+    #             WHERE type = "yourself" """).fetchall()
+    #
+    # for id in result:
+    #     print(id)
+    # con.close()
+
+
+    print(dice())
+    main_menu_script()
+    pygame.quit()
