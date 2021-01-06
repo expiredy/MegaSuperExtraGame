@@ -97,12 +97,11 @@ def game_active():
     window.fill((0, 0, 0))
     while app_is_active:
         main_menu_script()
-
         connection_window()
-
         settings_window()
-
         main_game_script()
+
+
 
 def settings():
     pass
