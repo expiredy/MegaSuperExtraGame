@@ -29,9 +29,61 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
 
-def dice(start=1, end=7):
-    return random.randrange(start, end)
+def main_menu_script():
+    while main_menu_is_active:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEMOTION:
+                if start_button.is_targeted(event.pos):
+                    start_button.target_animation()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # start_button.is_pressed((11, 22))
+                print(event.pos)
+                start_button.is_pressed(event.pos)
+        start_button.draw(window)
+        settings_button.draw(window)
+        pygame.display.flip()
+        clock.tick(fps)
+    window.fill((0, 0, 0))
 
+def conection_window():
+    while waiting_for_start:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEMOTION:
+                if stop_button.is_targeted(event.pos):
+                    stop_button.target_animation()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # stop_button.is_pressed((110, 201))
+                print(event.pos)
+                stop_button.is_pressed(event.pos)
+        stop_button.draw(window)
+        pygame.display.flip()
+        clock.tick(fps)
+
+    window.fill((0, 0, 0))
+
+def main_game_script():
+    while game_is_continue:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                print('UP')
+            elif event.type == pygame.KEYDOWN:
+                pass
+
+        pygame.display.flip()
+        clock.tick(fps)
+    window.fill((0, 0, 0))
+
+def settings_window():
+    while settings_is_active:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                print('UP')
+            elif event.type == pygame.KEYDOWN:
+                pass
+
+        pygame.display.flip()
+        clock.tick(fps)
+    window.fill((0, 0, 0))
 
 def game_active():
     global game_is_continue, main_menu_is_active, waiting_for_start, app_is_active, fps
@@ -44,45 +96,13 @@ def game_active():
     settings_button = Button('Settings', 225, 125, 200, 100, func=settings)
     window.fill((0, 0, 0))
     while app_is_active:
-        while main_menu_is_active:
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEMOTION:
-                    if start_button.is_targeted(event.pos):
-                        start_button.target_animation()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # start_button.is_pressed((11, 22))
-                    print(event.pos)
-                    start_button.is_pressed(event.pos)
-            start_button.draw(window)
-            settings_button.draw(window)
-            pygame.display.flip()
-            clock.tick(fps)
-        window.fill((0, 0, 0))
+        main_menu_script()
 
-        while waiting_for_start:
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEMOTION:
-                    if stop_button.is_targeted(event.pos):
-                        stop_button.target_animation()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # stop_button.is_pressed((110, 201))
-                    print(event.pos)
-                    stop_button.is_pressed(event.pos)
-            stop_button.draw(window)
-            pygame.display.flip()
-            clock.tick(fps)
+        connection_window()
 
-        window.fill((0, 0, 0))
-        while game_is_continue:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYUP:
-                    print('UP')
-                elif event.type == pygame.KEYDOWN:
-                    pass
+        settings_window()
 
-            pygame.display.flip()
-            clock.tick(fps)
-        window.fill((0, 0, 0))
+        main_game_script()
 
 def settings():
     pass
@@ -96,6 +116,9 @@ def game_exit():
     global waiting_for_start, main_menu_is_active
     waiting_for_start = False
     main_menu_is_active = True
+
+def dice(start=1, end=7):
+    return random.randrange(start, end)
 
 if __name__ == '__main__':
     monitors_data = [monitor for monitor in get_monitors()]
@@ -125,6 +148,7 @@ if __name__ == '__main__':
     game_is_continue = False
     waiting_for_start = False
     main_menu_is_active = True
+    settings_is_active = False
     app_is_active = True
 
 
