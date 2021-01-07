@@ -6,7 +6,6 @@ from button import Button
 from threading import Thread
 from screeninfo import get_monitors
 
-
 class AnimatedSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, columns, rows, x, y):
         super().__init__(all_sprites)
@@ -29,7 +28,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
 
-def main_menu_script():
+def main_menu_script(start_button, settings_button):
     while main_menu_is_active:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEMOTION:
@@ -39,13 +38,14 @@ def main_menu_script():
                 # start_button.is_pressed((11, 22))
                 print(event.pos)
                 start_button.is_pressed(event.pos)
+        # video_player(background_video)
         start_button.draw(window)
         settings_button.draw(window)
         pygame.display.flip()
         clock.tick(fps)
     window.fill((0, 0, 0))
 
-def conection_window():
+def connection_window(stop_button):
     while waiting_for_start:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEMOTION:
@@ -85,10 +85,10 @@ def settings_window():
         clock.tick(fps)
     window.fill((0, 0, 0))
 
-def game_active():
+def main_script():
     global game_is_continue, main_menu_is_active, waiting_for_start, app_is_active, fps
-    window.fill((0, 0, 0))
     # loading = AnimatedSprite(load_image("loading.png"), 8, 2, 50, 50)
+    # background_video = get_media(r"Sprites/BackgroundCity.mp4")
     stop_button = Button('No, I am out of there', 100, 200, 200, 100, func=game_exit, outline_lenth=10,
                           color_of_outline=(255, 255, 255))
     start_button = Button('Start', 10, 20, 200, 100, func=activate_game, outline_lenth=10,
@@ -96,12 +96,9 @@ def game_active():
     settings_button = Button('Settings', 225, 125, 200, 100, func=settings)
     window.fill((0, 0, 0))
     while app_is_active:
-        main_menu_script()
-
-        connection_window()
-
+        main_menu_script(start_button, settings_button)
+        connection_window(stop_button)
         settings_window()
-
         main_game_script()
 
 def settings():
@@ -164,5 +161,5 @@ if __name__ == '__main__':
 
 
     print(dice())
-    game_active()
+    main_script()
     pygame.quit()

@@ -12,9 +12,14 @@ class Player:
     def kill(self):
         self.condition = config.unplayable_condition
 
-mode = 'classic'
+mode = config.classic_mode
 amount_players = int(input("Сколько игроков в игре? "))
 amount_mafia = int(input("Сколько мафий в игре? "))
+amount_doctors = 1
+amount_detective = 1
+if mode == config.configurate_mode:
+    amount_doctors = int(input("Сколько докторов в игре? "))
+    amount_detective = int(input("Сколько детективов в игре? "))
 players = list(range(1, amount_players + 1))
 random.shuffle(players)
 mafia = [players.pop() for _ in range(amount_mafia)]
@@ -30,6 +35,8 @@ print("Доктором является игрок:", doctor)
 print("Детективом является игрок:", detective)
 print("Мирные жители:", *inhabitants)
 
+
+for player in players:
 
 
 while mafia:
