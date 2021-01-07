@@ -30,9 +30,8 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
 
-
 class FolederWithSprites(pygame.sprite.Sprite):
-    max_frame = 3
+    max_frame = 0
     def __init__(self, path, base_name, present_value='000', targeted_max_value='100', image_resolution='png',
                  x_cord=0, y_cord=0, x_lenth=1920, y_lenth=1080,
                  is_loop=True):
@@ -42,7 +41,7 @@ class FolederWithSprites(pygame.sprite.Sprite):
         self.base_name = base_name
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
         self.image_resolution = image_resolution
-        self.present_value, self.targeted_max_value = present_value, str(int(targeted_max_value))
+        self.present_value, self.targeted_max_value = present_value, targeted_max_value
         self.frame_counter = self.max_frame
     def update(self):
         if self.frame_counter == self.max_frame:
@@ -54,7 +53,6 @@ class FolederWithSprites(pygame.sprite.Sprite):
         else:
             self.frame_counter += 1
 
-
 class logo_constructor(pygame.sprite.Sprite):
     def __init__(self, name, x_cord=0, y_cord=0, x_lenth=1920, y_lenth=1080):
         self.image = load_image(name)
@@ -62,7 +60,6 @@ class logo_constructor(pygame.sprite.Sprite):
         print(x_cord, y_cord, x_lenth, y_lenth)
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
         self.rect = pygame.Rect(self.x_cord, self.y_cord, self.x_lenth, self.y_lenth)
-
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('Sprites', name)
@@ -72,24 +69,27 @@ def load_image(name, colorkey=None):
     image = pygame.image.load(fullname)
     return image
 
+def event_checker(event, start_button, settings_button, exit_button):
+    if event.type == pygame.MOUSEMOTION:
+        if start_button.is_targeted(event.pos):
+            start_button.target_animation()
+        elif settings_button.is_targeted(event.pos):
+            pass
+        elif exit_button.is_targeted(event.pos):
+            exit_button.target_animation()
+    elif event.type == pygame.MOUSEBUTTONDOWN:
+        start_button.is_pressed(event.pos)
+        exit_button.is_pressed(event.pos)
 def main_menu_script(start_button, settings_button, exit_button):
     global width, height
     mafia_logo = logo_constructor('text_mafia.png', width * 0.25, 0, 1000, 800)
     background_video = FolederWithSprites(r'BackgroundCitySprites',
-                                          "BackgroundCity_", "000", "168", ".jpg", x_cord=0, y_cord=0,
+                                          "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
                                           x_lenth=width, y_lenth=height)
     while main_menu_is_active:
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEMOTION:
-                if start_button.is_targeted(event.pos):
-                    start_button.target_animation()
-                elif settings_button.is_targeted(event.pos):
-                    pass
-                elif exit_button.is_targeted(event.pos):
-                    exit_button.target_animation()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                start_button.is_pressed(event.pos)
-                exit_button.is_pressed(event.pos)
+            new_event = Thread(target=event_checker, args=(event,start_button, settings_button, exit_button))
+            new_event.start()
         background_video.update()
         window.blit(background_video.image, background_video.rect)
         window.blit(mafia_logo.image, mafia_logo.rect)
@@ -204,7 +204,7 @@ if __name__ == '__main__':
 
     total_cards = {}
     buttons = {}
-    fps = 120
+    fps = 144
     clock = pygame.time.Clock()
     width, height = monitor.width, monitor.height
     size = width, height
@@ -217,16 +217,6 @@ if __name__ == '__main__':
     main_menu_is_active = True
     settings_is_active = False
     app_is_active = True
-
-
-    # con = sqlite3.connect("cards.db")
-    # cur = con.cursor()
-    # result = cur.execute("""SELECT * FROM card
-    #             WHERE type = "yourself" """).fetchall()
-    #
-    # for id in result:
-    #     print(id)
-    # con.close()
 
 
     print(dice())
