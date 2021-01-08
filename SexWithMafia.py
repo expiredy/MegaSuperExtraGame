@@ -35,9 +35,7 @@ print("Доктором является игрок:", doctor)
 print("Детективом является игрок:", detective)
 print("Мирные жители:", *inhabitants)
 
-
 for player in players:
-
 
 while mafia:
     pass
