@@ -6,7 +6,7 @@ class Button():
     animation_max_frame = 15
     def __init__(self, button_text, x_cord, y_cord, x_lenth, y_lenth, func=None, new_button_group=None,
                  text_color=(255, 0, 0), font_size=90, font_for_text="Lilita One Russian",
-                 background=(55,55,255), backgroynd_tex=None, color_of_outline=None,
+                 background=(75,85,255), backgroynd_tex=None, color_of_outline=None,
                  outline_lenth=None):
         self.button_text = str(button_text)
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth

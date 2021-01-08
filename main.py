@@ -57,7 +57,7 @@ class FolederWithSprites(pygame.sprite.Sprite):
 
 class logo_constructor(pygame.sprite.Sprite):
     def __init__(self, name, x_cord=0, y_cord=0, x_lenth=1920, y_lenth=1080):
-        self.image = load_image(name).convert_alpha()
+        self.image = load_image(name)
         self.image = pygame.transform.scale(self.image, (x_lenth, y_lenth))
         print(x_cord, y_cord, x_lenth, y_lenth)
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
@@ -137,6 +137,14 @@ def main_game_script():
         clock.tick(fps)
     window.fill((0, 0, 0))
 
+def setting_inforamtion():
+    while set_information:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                print('UP')
+            elif event.type == pygame.KEYDOWN:
+                pass
+
 def settings_window():
     while settings_is_active:
         for event in pygame.event.get():
@@ -152,27 +160,34 @@ def settings_window():
 def main_script():
     global game_is_continue, main_menu_is_active, waiting_for_start, app_is_active, fps
     # loading = AnimatedSprite(load_image("loading.png"), 8, 2, 50, 50)
-    stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_exit, outline_lenth=10,
-                          color_of_outline=(255, 255, 255))
-    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=activate_game, outline_lenth=10,
-                          color_of_outline=(255, 255, 255))
-
+    stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_exit,
+                         outline_lenth=10, background=(0,0,0), color_of_outline=(205, 205, 205))
+    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=set_info_for_game,
+                          outline_lenth=10, background=(0,0,0), color_of_outline=(205, 205, 205),
+                          text_color=(255, 255,255))
     exit_button = Button('Exit', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
-                          color_of_outline=(255, 255, 255))
-    settings_button = Button('Settings', width // 2 - 150, height * 0.6, 300, 150, func=settings)
+                         background=(0,0,0), color_of_outline=(205, 205, 205),
+                          text_color=(255, 255,255))
+    settings_button = Button('Settings', width // 2 - 150, height * 0.6, 300, 150, func=settings,
+                          text_color=(255, 255,255))
     window.fill((0, 0, 0))
     while app_is_active:
         main_menu_script(start_button, settings_button, exit_button)
         connection_window(stop_button)
         settings_window()
         main_game_script()
+        setting_inforamtion()
 
 def settings():
     pass
 
-def activate_game():
-    global waiting_for_start, main_menu_is_active
-    waiting_for_start = True
+def game_active():
+    global waiting_for_start,  set_information
+    waiting_for_start, set_information = True, False
+
+def set_info_for_game():
+    global main_menu_is_active, set_information
+    set_information = True
     main_menu_is_active = False
 
 def game_exit():
@@ -187,8 +202,10 @@ def data_save():
     pass
 
 def app_exit():
-    global game_is_continue, waiting_for_start, main_menu_is_active, settings_is_active, app_is_active
+    global game_is_continue, waiting_for_start, main_menu_is_active, settings_is_active, app_is_active,\
+        set_information
     data_save()
+    set_information = False
     game_is_continue = False
     waiting_for_start = False
     main_menu_is_active = False
@@ -221,11 +238,14 @@ if __name__ == '__main__':
     window = pygame.display.set_mode(size)
     pygame.display.flip()
     clock.tick(fps)
-    game_is_continue = False
-    waiting_for_start = False
-    main_menu_is_active = True
-    settings_is_active = False
     app_is_active = True
+    main_menu_is_active = True
+    set_information = False
+    settings_is_active = False
+    waiting_for_start = False
+    game_is_continue = False
+
+
 
 
     print(dice())
