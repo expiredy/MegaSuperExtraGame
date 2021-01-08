@@ -57,7 +57,7 @@ class FolederWithSprites(pygame.sprite.Sprite):
 
 class logo_constructor(pygame.sprite.Sprite):
     def __init__(self, name, x_cord=0, y_cord=0, x_lenth=1920, y_lenth=1080):
-        self.image = load_image(name)
+        self.image = load_image(name).convert_alpha()
         self.image = pygame.transform.scale(self.image, (x_lenth, y_lenth))
         print(x_cord, y_cord, x_lenth, y_lenth)
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
@@ -83,10 +83,9 @@ def event_checker(event, start_button, settings_button, exit_button):
         start_button.is_pressed(event.pos)
         exit_button.is_pressed(event.pos)
 
-def backgrounder(background_video):
+def background_drawer(image):
     while main_menu_is_active:
-        background_video.update()
-        window.blit(background_video.image, background_video.rect)
+        window.blit(image.image, image.rect)
 
 def main_menu_script(start_button, settings_button, exit_button):
     global width, height
@@ -94,13 +93,12 @@ def main_menu_script(start_button, settings_button, exit_button):
     background_video = FolederWithSprites(r'BackgroundCitySprites',
                                           "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
                                           x_lenth=width, y_lenth=height)
-    # thread_with_background = Thread(target=backgrounder, args=(background_video,))
-    # thread_with_background.start()
+    # thread_with_logo = Thread(target=background_drawer, args=(mafia_logo,))
+    # thread_with_logo.start()
     while main_menu_is_active:
         for event in pygame.event.get():
             new_event = Thread(target=event_checker, args=(event,start_button, settings_button, exit_button))
             new_event.start()
-
         background_video.update()
         window.blit(background_video.image, background_video.rect)
         window.blit(mafia_logo.image, mafia_logo.rect)
