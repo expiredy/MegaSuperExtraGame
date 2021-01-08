@@ -4,7 +4,7 @@ import pygame
 import sqlite3
 import sys
 import os
-from button import Button
+from button import Button, TextButton
 from threading import Thread
 from screeninfo import get_monitors
 
@@ -83,12 +83,20 @@ def event_checker(event, start_button, settings_button, exit_button):
         start_button.is_pressed(event.pos)
         exit_button.is_pressed(event.pos)
 
-def background_drawer(image):
-    while main_menu_is_active:
-        window.blit(image.image, image.rect)
+# def background_drawer(image):
+#     while main_menu_is_active:
+#         window.blit(image.image, image.rect)
 
-def main_menu_script(start_button, settings_button, exit_button):
+def main_menu_script():
     global width, height
+    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=set_info_for_game,
+                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205),
+                          text_color=(255, 255, 255))
+    exit_button = Button('Exit', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
+                         background=(0, 0, 0), color_of_outline=(205, 205, 205),
+                         text_color=(255, 255, 255))
+    settings_button = Button('Settings', width // 2 - 150, height * 0.6, 300, 150, func=settings,
+                             text_color=(255, 255, 255))
     mafia_logo = logo_constructor('text_mafia.png', width * 0.25, 0, 1000, 800)
     background_video = FolederWithSprites(r'BackgroundCitySprites',
                                           "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
@@ -109,13 +117,14 @@ def main_menu_script(start_button, settings_button, exit_button):
         clock.tick(fps)
     window.fill((0, 0, 0))
 
-def connection_window(stop_button):
+def connection_window():
+    stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=set_info_for_game,
+                         args=(False,), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while waiting_for_start:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEMOTION:
                 if stop_button.is_targeted(event.pos):
-                    # stop_button.target_animation()
-                    pass
+                    stop_button.target_animation()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 print(event.pos)
                 stop_button.is_pressed(event.pos)
@@ -138,12 +147,23 @@ def main_game_script():
     window.fill((0, 0, 0))
 
 def setting_inforamtion():
+    back_button = Button('Back', width // 2 - 150, height * 0.8, 300, 150, func=set_info_for_game, args=(False,),
+                         outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while set_information:
         for event in pygame.event.get():
             if event.type == pygame.KEYUP:
                 print('UP')
             elif event.type == pygame.KEYDOWN:
                 pass
+            elif event.type == pygame.MOUSEMOTION:
+                if back_button.is_targeted(event.pos):
+                    back_button.target_animation()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                back_button.is_pressed(event.pos)
+        back_button.draw(window)
+        pygame.display.flip()
+        clock.tick(fps)
+    window.fill((0, 0, 0))
 
 def settings_window():
     while settings_is_active:
@@ -160,20 +180,10 @@ def settings_window():
 def main_script():
     global game_is_continue, main_menu_is_active, waiting_for_start, app_is_active, fps
     # loading = AnimatedSprite(load_image("loading.png"), 8, 2, 50, 50)
-    stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_exit,
-                         outline_lenth=10, background=(0,0,0), color_of_outline=(205, 205, 205))
-    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=set_info_for_game,
-                          outline_lenth=10, background=(0,0,0), color_of_outline=(205, 205, 205),
-                          text_color=(255, 255,255))
-    exit_button = Button('Exit', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
-                         background=(0,0,0), color_of_outline=(205, 205, 205),
-                          text_color=(255, 255,255))
-    settings_button = Button('Settings', width // 2 - 150, height * 0.6, 300, 150, func=settings,
-                          text_color=(255, 255,255))
     window.fill((0, 0, 0))
     while app_is_active:
-        main_menu_script(start_button, settings_button, exit_button)
-        connection_window(stop_button)
+        main_menu_script()
+        connection_window()
         settings_window()
         main_game_script()
         setting_inforamtion()
@@ -185,10 +195,11 @@ def game_active():
     global waiting_for_start,  set_information
     waiting_for_start, set_information = True, False
 
-def set_info_for_game():
+def set_info_for_game(value=True):
     global main_menu_is_active, set_information
-    set_information = True
-    main_menu_is_active = False
+    set_information = value
+    main_menu_is_active = not value
+
 
 def game_exit():
     global waiting_for_start, main_menu_is_active
