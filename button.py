@@ -5,7 +5,7 @@ from time import sleep
 
 class Button():
     button_group = None
-    animation_max_frame = 30
+    animation_max_frame = 15
     def __init__(self, button_text, x_cord, y_cord, x_lenth, y_lenth, func=None, args=None, new_button_group=None,
                  text_color=(255, 0, 0), font_size=90, font_for_text="Lilita One Russian",
                  background=(75,85,255), backgroynd_tex=None, color_of_outline=None,
@@ -32,6 +32,7 @@ class Button():
         self.present_animation_frame = 0
         self.background = background if not backgroynd_tex else backgroynd_tex
         self.font_for_text, self.font_size = font_for_text, font_size
+        self.start_animation,  self.end_animation = False, False
 
     def is_pressed(self, pos):
         if self.is_targeted(pos):
@@ -48,27 +49,35 @@ class Button():
     def default_function_for_button(self):
         pass
 
-    def animation(self, key=1):
-        while self.is_animation_started and self.present_animation_frame < self.animation_max_frame:
+    def animation(self, key):
+        while self.is_animation_started and 0 <= self.present_animation_frame < self.animation_max_frame:
             self.font_size += key
             sleep(0.1)
             self.present_animation_frame += key
+            if key == -1:
+                print(self.font_size)
+        self.is_animation_started = False
 
     def target_animation(self):
-        if self.is_animation_started:
-            self.new_animation = Thread(target=self.animation)
+        self.is_animation_started = True
+        if self.start_animation:
+            self.new_animation = Thread(target=self.animation, args=(1, ))
             self.new_animation.start()
-        else:
+        elif self.end_animation:
             self.new_animation = Thread(target=self.animation, args=(-1, ))
             self.new_animation.start()
 
+
     def is_targeted(self, pos):
         if self.x_cord <= pos[0] <= self.x_cord + self.x_lenth and self.y_cord <= pos[1] <= self.y_cord + self.y_lenth:
-            self.is_animation_started = True
-            return True
+            self.start_animation = True
+            self.end_animation = False
         else:
-            self.is_animation_started = False
-            return False
+            self.start_animation = False
+            self.end_animation = True
+        self.target_animation()
+        return self.x_cord <= pos[0] <= self.x_cord + self.x_lenth and self.y_cord\
+               <= pos[1] <= self.y_cord + self.y_lenth
 
     def draw(self, canvas):
         pygame.font.init()
