@@ -1,9 +1,11 @@
 import pygame
+from threading import Thread
+from time import sleep
 
 
 class Button():
     button_group = None
-    animation_max_frame = 15
+    animation_max_frame = 30
     def __init__(self, button_text, x_cord, y_cord, x_lenth, y_lenth, func=None, args=None, new_button_group=None,
                  text_color=(255, 0, 0), font_size=90, font_for_text="Lilita One Russian",
                  background=(75,85,255), backgroynd_tex=None, color_of_outline=None,
@@ -46,20 +48,25 @@ class Button():
     def default_function_for_button(self):
         pass
 
+    def animation(self, key=1):
+        while self.is_animation_started and self.present_animation_frame < self.animation_max_frame:
+            self.font_size += key
+            sleep(0.1)
+            self.present_animation_frame += key
+
     def target_animation(self):
-        if self.is_animation_started and self.present_animation_frame < self.animation_max_frame:
-                self.present_animation_frame += 1
-                self.font_size += 1
-        if not self.is_animation_started and self.present_animation_frame > 0:
-            self.present_animation_frame -= 1
-            self.font_size -= 1
+        if self.is_animation_started:
+            self.new_animation = Thread(target=self.animation)
+            self.new_animation.start()
+        else:
+            self.new_animation = Thread(target=self.animation, args=(-1, ))
+            self.new_animation.start()
 
     def is_targeted(self, pos):
         if self.x_cord <= pos[0] <= self.x_cord + self.x_lenth and self.y_cord <= pos[1] <= self.y_cord + self.y_lenth:
             self.is_animation_started = True
             return True
         else:
-            self.target_animation()
             self.is_animation_started = False
             return False
 
@@ -94,10 +101,10 @@ class TextButton(Button):
         textsurface = myfont.render(self.button_text, False, self.text_color)
 
 
-
 class InputField(Button):
+    max_animation_frame = 30
     def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record",
-                 font_size=40, text_color=(255, 0, 0),
+                 font_size=50, text_color=(255, 0, 0),
                  background=(155,155,155), input_is_active=True):
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
         self.input_is_active = input_is_active
@@ -106,26 +113,45 @@ class InputField(Button):
         self.present_animation_frame = 0
         self.text_color = text_color
         self.background = background
-        self.text=''
+        self.text = ''
+        self.is_separator = False
+        self.now_position = 0
         self.is_upper = False
 
-    def checker(self, event):
+    def checker_for_upper_letter(self, event):
         if event.key in [pygame.K_LSHIFT, pygame.K_RSHIFT]:
                 self.is_upper = False
 
     def activate_input(self, event):
         if self.input_is_active:
             if event.key == pygame.K_BACKSPACE:
-                self.text = self.text[:-1]
+                self.text = self.text[:self.now_position][:-1] + self.text[self.now_position:]
+                self.now_position -= 1
+                if len(self.text) < self.now_position:
+                    self.now_position = len(self.text)
             elif event.key == pygame.K_CLEAR:
                 pass
             elif event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
                 self.input_is_active = False
             elif event.key in [pygame.K_LSHIFT, pygame.K_RSHIFT]:
                 self.is_upper = True
+            elif event.key == pygame.K_LEFT:
+                self.now_position -= 1 if self.now_position > 0 else 0
+            elif event.key == pygame.K_RIGHT:
+                self.now_position += 1 if self.now_position < len(self.text) else 0
+            elif event.key == pygame.K_UP:
+                self.now_position = 0
+            elif event.key == pygame.K_DOWN:
+                self.now_position = len(self.text)
             else:
-                self.text += chr(event.key).upper() if self.is_upper else chr(event.key)
-                print(self.text)
+                try:
+                    self.text = self.text[:self.now_position] + chr(event.key).upper() + self.text[self.now_position:]\
+                        if self.is_upper else self.text[:self.now_position]\
+                                              + chr(event.key) + self.text[self.now_position:]
+                    self.now_position  += 1
+                except ValueError:
+                    pass
+                print(self.text, self.now_position)
 
     def is_pressed(self, pos):
         if super().is_targeted(pos):
@@ -139,8 +165,19 @@ class InputField(Button):
         myfont = pygame.font.SysFont(self.font_for_text, self.font_size)
         textsurface = myfont.render(self.text, False, self.text_color)
         pygame.draw.rect(canvas, self.background, (self.x_cord, self.y_cord, self.x_lenth, self.y_lenth))
-        canvas.blit(textsurface, (self.x_cord + (self.x_lenth - myfont.size(self.text)[0]) // 2,
+        canvas.blit(textsurface, (self.x_cord, self.y_cord + (self.y_lenth - myfont.size(self.text)[1]) // 2))
+        if self.input_is_active:
+            self.present_animation_frame += 1
+            self.present_animation_frame %= self.max_animation_frame
+            if self.present_animation_frame == 0:
+                self.is_separator = not self.is_separator
+            if self.is_separator:
+                text_separator = myfont.render('|', False, (255, 255, 255))
+                canvas.blit(text_separator, (self.x_cord + myfont.size(self.text[:self.now_position])[0],
                                           self.y_cord + (self.y_lenth - myfont.size(self.text)[1]) // 2))
+
+    def __str__(self):
+        return self.text
 
 
 class ButtonGroup():

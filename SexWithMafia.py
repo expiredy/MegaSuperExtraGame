@@ -8,7 +8,6 @@ class Player:
         self.id, self.name, self.role, self.condition = id, name, role, condition
         self.avatar = avatar
 
-
     def set_role(self, new_role):
         self.role = new_role
 
@@ -18,13 +17,14 @@ class Player:
     def make_viewer(self):
         self.condition = config.unplayable_condition
 
+    def awake(self):
+        self.condition = config.condition_for_sleep
+
 
 def temporary_measure_to_create_player():
     player_name = input('Введите имя игрока')
     player_image = input()
     player_role = None
-
-
 
 temporary_measure_to_create_palaer()
 mode = config.classic_mode
@@ -52,5 +52,5 @@ for key in list(config.classic_order.keys()):
 print(', '.join(players[config.inhabitants_key]), "is", config.inhabitants_key)
 
 
-while all(mafia.is_alive() for mafia in players[config.mafia_key)]):
+while all([mafia.is_alive() for mafia in players[config.mafia_key]):
     pass

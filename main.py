@@ -4,6 +4,7 @@ import pygame
 import sqlite3
 import sys
 import os
+import config
 from button import Button, TextButton, InputField
 from threading import Thread
 from screeninfo import get_monitors
@@ -173,16 +174,18 @@ def choicing_game_mode_window():
     window.fill((0, 0, 0))
 
 def setting_inforamtion():
+    name_input = InputField(width // 2 - 250, height * 0.1, 500, 150)
     back_button = Button('Back', width // 2 - 150, height * 0.8, 300, 150, func=set_info_for_game, args=(False,),
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     save_button = Button('Save', width // 2 + 150, height * 0.8, 300, 150, func=save_and_back_to_main_menu,
+                         args=(name_input,),
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
-    name_input = InputField(width // 2 - 250, height * 0.1, 500, 150)
+
     while set_information:
         for event in pygame.event.get():
 
             if event.type == pygame.KEYUP:
-                name_input.checker(event)
+                name_input.checker_for_upper_letter(event)
             elif event.type == pygame.KEYDOWN:
                 name_input.activate_input(event)
             elif event.type == pygame.MOUSEMOTION:
@@ -211,8 +214,8 @@ def settings_window():
         clock.tick(fps)
     window.fill((0, 0, 0))
 
-def save_and_back_to_main_menu():
-    data_save()
+def save_and_back_to_main_menu(name_input):
+    data_save(name_input)
     choice_game_mode(False)
 
 def main_script():
@@ -251,8 +254,10 @@ def game_exit():
 def dice(start=1, end=7):
     return random.randrange(start, end)
 
-def data_save():
-    pass
+def data_save(name_input=None):
+    if name_input:
+        config.player_name = str(name_input)
+    print(config.player_name)
 
 def app_exit():
     global game_is_continue, waiting_for_start, main_menu_is_active, settings_is_active, app_is_active,\
