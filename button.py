@@ -4,9 +4,9 @@ import pygame
 class Button():
     button_group = None
     animation_max_frame = 15
-    def __init__(self, button_text, x_cord, y_cord, x_lenth, y_lenth, func=None, new_button_group=None,
+    def __init__(self, button_text, x_cord, y_cord, x_lenth, y_lenth, func=None, args=None, new_button_group=None,
                  text_color=(255, 0, 0), font_size=90, font_for_text="Lilita One Russian",
-                 background=(55,55,255), backgroynd_tex=None, color_of_outline=None,
+                 background=(75,85,255), backgroynd_tex=None, color_of_outline=None,
                  outline_lenth=None):
         self.button_text = str(button_text)
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
@@ -23,8 +23,9 @@ class Button():
         elif new_button_group:
             self.button_group = new_button_group
         self.name = button_text
-        if func:
-            self.main_function = func
+
+        self.args = args
+        self.main_function = func
         self.text_color = text_color
         self.present_animation_frame = 0
         self.background = background if not backgroynd_tex else backgroynd_tex
@@ -33,7 +34,11 @@ class Button():
     def is_pressed(self, pos):
         if self.is_targeted(pos):
             print('Scanner of mouse deteced a fricking click')
-            self.main_function()
+            if self.main_function:
+                if self.args:
+                    self.main_function(*self.args)
+                else:
+                    self.main_function()
 
     def text_change(self, new_text, new_color, new_font=None):
         pass
@@ -74,10 +79,41 @@ class Button():
 
 
 class TextButton(Button):
-    def __init__(self, button_text, x_cord, y_cord, x_lenth, y_lenth, func=None, new_button_group=None,
-                 text_color=(255, 0, 0), font_size=40, font_for_text="Rockin' Record", background=(55,55,255), backgroynd_tex=None, color_of_outline=None,
+    def __init__(self, button_text, x_cord, y_cord, x_lenth, y_lenth, func=None, args=None, new_button_group=None,
+                 text_color=(255, 0, 0), font_size=90, font_for_text="Lilita One Russian",
+                 background=(75,85,255), backgroynd_tex=None, color_of_outline=None,
                  outline_lenth=None):
-        super().__init__()
+        super().__init__(button_text, x_cord, y_cord, x_lenth, y_lenth, func, args, new_button_group,
+                 text_color, font_size, font_for_text,
+                 background, backgroynd_tex, color_of_outline,
+                 outline_lenth)
+
+    def draw(self, canvas):
+        pygame.font.init()
+        myfont = pygame.font.SysFont(self.font_for_text, self.font_size)
+        textsurface = myfont.render(self.button_text, False, self.text_color)
+        canvas.blit(textsurface, (self.x_cord + (self.x_lenth - myfont.size(self.button_text)[0]) // 2,
+                                  self.y_cord + (self.y_lenth - myfont.size(self.button_text)[1]) // 2))
+
+
+class InputField(Button):
+    def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record", text_color=(255, 0, 0),
+                 background=(0,0,0), input_is_active=True):
+        self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
+        self.input_is_active = input_is_active
+
+    def activate_input():
+        pass
+
+    def is_pressed(self, pos):
+        if super().is_targeted(pos):
+            self.input_is_active = True
+        else:
+            self.input_is_active = False
+
+
+    def draw(self, canvas):
+        pygame.draw.rect(canvas, self.background, (self.x_cord, self.y_cord, self.x_lenth, self.y_lenth))
 
 class ButtonGroup():
     def __init__(self, *buttons):
