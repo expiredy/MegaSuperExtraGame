@@ -71,7 +71,7 @@ def load_image(name, colorkey=None):
     image = pygame.image.load(fullname)
     return image
 
-def event_checker(event, start_button, settings_button, exit_button):
+def main_menu_event_checker(event, start_button, settings_button, exit_button, customize_yourself):
     if event.type == pygame.MOUSEMOTION:
         if start_button.is_targeted(event.pos):
             start_button.target_animation()
@@ -80,16 +80,13 @@ def event_checker(event, start_button, settings_button, exit_button):
         elif exit_button.is_targeted(event.pos):
             exit_button.target_animation()
     elif event.type == pygame.MOUSEBUTTONDOWN:
+        customize_yourself.is_pressed(event.pos)
         start_button.is_pressed(event.pos)
         exit_button.is_pressed(event.pos)
 
-# def background_drawer(image):
-#     while main_menu_is_active:
-#         window.blit(image.image, image.rect)
-
 def main_menu_script():
     global width, height
-    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=set_info_for_game,
+    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=choice_game_mode,
                           outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205),
                           text_color=(255, 255, 255))
     exit_button = Button('Exit', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
@@ -97,6 +94,10 @@ def main_menu_script():
                          text_color=(255, 255, 255))
     settings_button = Button('Settings', width // 2 - 150, height * 0.6, 300, 150, func=settings,
                              text_color=(255, 255, 255))
+
+    customize_yourself = Button('Profile settings', width * 0.8, height * 0.8, 300, 150, func=set_info_for_game,
+                             text_color=(255, 255, 255), font_size=40)
+
     mafia_logo = logo_constructor('text_mafia.png', width * 0.25, 0, 1000, 800)
     background_video = FolederWithSprites(r'BackgroundCitySprites',
                                           "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
@@ -105,13 +106,15 @@ def main_menu_script():
     # thread_with_logo.start()
     while main_menu_is_active:
         for event in pygame.event.get():
-            new_event = Thread(target=event_checker, args=(event,start_button, settings_button, exit_button))
+            new_event = Thread(target=main_menu_event_checker, args=(event, start_button, settings_button,
+                                                                     exit_button, customize_yourself))
             new_event.start()
         background_video.update()
         window.blit(background_video.image, background_video.rect)
         window.blit(mafia_logo.image, mafia_logo.rect)
         start_button.draw(window)
         settings_button.draw(window)
+        customize_yourself.draw(window)
         exit_button.draw(window)
         pygame.display.flip()
         clock.tick(fps)
@@ -146,8 +149,33 @@ def main_game_script():
         clock.tick(fps)
     window.fill((0, 0, 0))
 
+def choicing_game_mode_window():
+    global choising_game_mode
+    back_button = Button('Back', width // 2 - 150, height * 0.8, 300, 150, func=choice_game_mode, args=(False,),
+                         outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
+    window.fill((0, 0, 0))
+    while choising_game_mode:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                print('UP')
+            elif event.type == pygame.KEYDOWN:
+                pass
+            elif event.type == pygame.MOUSEMOTION:
+                if back_button.is_targeted(event.pos):
+                    back_button.target_animation()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                back_button.is_pressed(event.pos)
+
+
+        back_button.draw(window)
+        pygame.display.flip()
+        clock.tick(fps)
+    window.fill((0, 0, 0))
+
 def setting_inforamtion():
     back_button = Button('Back', width // 2 - 150, height * 0.8, 300, 150, func=set_info_for_game, args=(False,),
+                         outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
+    save_button = Button('Save', width // 2 + 150, height * 0.8, 300, 150, func=save_and_back_to_main_menu,
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while set_information:
         for event in pygame.event.get():
@@ -160,6 +188,8 @@ def setting_inforamtion():
                     back_button.target_animation()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 back_button.is_pressed(event.pos)
+                save_button.is_pressed(event.pos)
+        save_button.draw(window)
         back_button.draw(window)
         pygame.display.flip()
         clock.tick(fps)
@@ -177,6 +207,10 @@ def settings_window():
         clock.tick(fps)
     window.fill((0, 0, 0))
 
+def save_and_back_to_main_menu():
+    data_save()
+    choice_game_mode(False)
+
 def main_script():
     global game_is_continue, main_menu_is_active, waiting_for_start, app_is_active, fps
     # loading = AnimatedSprite(load_image("loading.png"), 8, 2, 50, 50)
@@ -187,6 +221,7 @@ def main_script():
         settings_window()
         main_game_script()
         setting_inforamtion()
+        choicing_game_mode_window()
 
 def settings():
     pass
@@ -200,6 +235,9 @@ def set_info_for_game(value=True):
     set_information = value
     main_menu_is_active = not value
 
+def choice_game_mode(value=True):
+    global choising_game_mode, main_menu_is_active
+    choising_game_mode, main_menu_is_active = value, not value
 
 def game_exit():
     global waiting_for_start, main_menu_is_active
@@ -255,7 +293,7 @@ if __name__ == '__main__':
     settings_is_active = False
     waiting_for_start = False
     game_is_continue = False
-
+    choising_game_mode = False
 
 
 
