@@ -4,7 +4,7 @@ import pygame
 import sqlite3
 import sys
 import os
-from button import Button, TextButton
+from button import Button, TextButton, InputField
 from threading import Thread
 from screeninfo import get_monitors
 
@@ -177,18 +177,22 @@ def setting_inforamtion():
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     save_button = Button('Save', width // 2 + 150, height * 0.8, 300, 150, func=save_and_back_to_main_menu,
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
+    name_input = InputField(width // 2 - 250, height * 0.1, 500, 150)
     while set_information:
         for event in pygame.event.get():
+
             if event.type == pygame.KEYUP:
-                print('UP')
+                name_input.checker(event)
             elif event.type == pygame.KEYDOWN:
-                pass
+                name_input.activate_input(event)
             elif event.type == pygame.MOUSEMOTION:
                 if back_button.is_targeted(event.pos):
                     back_button.target_animation()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                name_input.is_pressed(event.pos)
                 back_button.is_pressed(event.pos)
                 save_button.is_pressed(event.pos)
+        name_input.draw(window)
         save_button.draw(window)
         back_button.draw(window)
         pygame.display.flip()

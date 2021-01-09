@@ -92,18 +92,40 @@ class TextButton(Button):
         pygame.font.init()
         myfont = pygame.font.SysFont(self.font_for_text, self.font_size)
         textsurface = myfont.render(self.button_text, False, self.text_color)
-        canvas.blit(textsurface, (self.x_cord + (self.x_lenth - myfont.size(self.button_text)[0]) // 2,
-                                  self.y_cord + (self.y_lenth - myfont.size(self.button_text)[1]) // 2))
+
 
 
 class InputField(Button):
-    def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record", text_color=(255, 0, 0),
-                 background=(0,0,0), input_is_active=True):
+    def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record",
+                 font_size=40, text_color=(255, 0, 0),
+                 background=(155,155,155), input_is_active=True):
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
         self.input_is_active = input_is_active
+        self.font_size, self.font_for_text = font_size, font_for_text
+        self.is_animation_started = False
+        self.present_animation_frame = 0
+        self.text_color = text_color
+        self.background = background
+        self.text=''
+        self.is_upper = False
 
-    def activate_input():
-        pass
+    def checker(self, event):
+        if event.key in [pygame.K_LSHIFT, pygame.K_RSHIFT]:
+                self.is_upper = False
+
+    def activate_input(self, event):
+        if self.input_is_active:
+            if event.key == pygame.K_BACKSPACE:
+                self.text = self.text[:-1]
+            elif event.key == pygame.K_CLEAR:
+                pass
+            elif event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
+                self.input_is_active = False
+            elif event.key in [pygame.K_LSHIFT, pygame.K_RSHIFT]:
+                self.is_upper = True
+            else:
+                self.text += chr(event.key).upper() if self.is_upper else chr(event.key)
+                print(self.text)
 
     def is_pressed(self, pos):
         if super().is_targeted(pos):
@@ -113,7 +135,13 @@ class InputField(Button):
 
 
     def draw(self, canvas):
+        pygame.font.init()
+        myfont = pygame.font.SysFont(self.font_for_text, self.font_size)
+        textsurface = myfont.render(self.text, False, self.text_color)
         pygame.draw.rect(canvas, self.background, (self.x_cord, self.y_cord, self.x_lenth, self.y_lenth))
+        canvas.blit(textsurface, (self.x_cord + (self.x_lenth - myfont.size(self.text)[0]) // 2,
+                                          self.y_cord + (self.y_lenth - myfont.size(self.text)[1]) // 2))
+
 
 class ButtonGroup():
     def __init__(self, *buttons):
