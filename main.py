@@ -107,7 +107,7 @@ def main_menu_script():
                                           x_lenth=width, y_lenth=height)
 
     mafia_logo = logo_constructor('text_mafia.png', width * 0.25, 0, 1000, 800)
-    # background_video = BackgroundVideo.run('Sprites\BackgroundCity.mp4')
+    background_video = BackgroundVideo.run(window, 'Sprites\BackgroundCity.mp4')
     # thread_with_logo = Thread(target=background_drawer, args=(mafia_logo,))
     # thread_with_logo.start()
     while main_menu_is_active:

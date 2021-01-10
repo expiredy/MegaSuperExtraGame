@@ -1,7 +1,9 @@
 import socket
+import config
 from threading import Thread
 
-SERVER = '25.41.244.86'
+# SERVER = '25.41.244.86'
+SERVER =  socket.gethostname()
 PORT = 9090
 
 client = socket.socket()
@@ -13,7 +15,8 @@ def listen():
     while True:
         try:
             in_data = client.recv(1024).decode()
-            if in_data == config.
+            if in_data == config.choicing_key:
+                print('Time To choice')
             print('From server:', in_data)
         except socket.error:
             print('Lost connection to server [L]')
@@ -21,10 +24,9 @@ def listen():
             break
 
 
-def send():
+def send(out_data):
     while True:
         try:
-            out_data = input()
             client.sendall(bytes(out_data, 'UTF-8'))
             if out_data == 'bye':
                 break
@@ -35,10 +37,9 @@ def send():
 
 
 thread_listen = Thread(target=listen)
-thread_send = Thread(target=send)
+# thread_send = Thread(target=send)
 
 thread_listen.start()
-thread_send.start()
+# thread_send.start()
 
 thread_listen.join()
-thread_send.join()

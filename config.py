@@ -9,6 +9,10 @@ disconect_message = 'He disconncted'
 classic_mode = 'classic'
 configurate_mode = 'send_box'
 
+choicing_key = 'choicePlayer'
+
+listener_key = 'listen'
+sender_key = 'send'
 
 mafia_key = 'mafia'
 doctor_key = 'doctor'
