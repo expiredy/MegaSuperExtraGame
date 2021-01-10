@@ -107,7 +107,10 @@ def main_menu_script():
                                           x_lenth=width, y_lenth=height)
 
     mafia_logo = logo_constructor('text_mafia.png', width * 0.25, 0, 1000, 800)
-    background_video = BackgroundVideo.run(window, 'Sprites\BackgroundCity.mp4')
+    # background_video = BackgroundVideo.run(window, 'Sprites\BackgroundCity.mp4')
+    background_video = FolederWithSprites(r'BackgroundCitySprites',
+                                          "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
+                                          x_lenth=width, y_lenth=height)
     # thread_with_logo = Thread(target=background_drawer, args=(mafia_logo,))
     # thread_with_logo.start()
     while main_menu_is_active:
@@ -115,8 +118,8 @@ def main_menu_script():
             new_event = Thread(target=main_menu_event_checker, args=(event, start_button, settings_button,
                                                                      exit_button, customize_yourself))
             new_event.start()
-        # background_video.update()
-        # window.blit(background_video.image, background_video.rect)
+        background_video.update()
+        window.blit(background_video.image, background_video.rect)
         window.blit(mafia_logo.image, mafia_logo.rect)
         start_button.draw(window)
         settings_button.draw(window)
@@ -125,6 +128,7 @@ def main_menu_script():
         pygame.display.flip()
         clock.tick(fps)
     window.fill((0, 0, 0))
+    new_event.join()
 
 def connection_window():
     stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=set_info_for_game,
@@ -294,7 +298,7 @@ def data_save(name_input=None):
 
 def app_exit():
     global game_is_continue, waiting_for_start, main_menu_is_active, settings_is_active, app_is_active,\
-        set_information
+        set_information, choising_game_mode, game_entering_window
     data_save()
     set_information = False
     game_is_continue = False
@@ -302,6 +306,9 @@ def app_exit():
     main_menu_is_active = False
     settings_is_active = False
     app_is_active = False
+    choising_game_mode = False
+    game_entering_window = False
+
     print(exit)
 
 if __name__ == '__main__':

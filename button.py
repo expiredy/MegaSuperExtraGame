@@ -57,7 +57,6 @@ class Button():
         pass
 
     def animation(self, key):
-
         self.is_animation_started = True
         while self.is_animation_started:
             self.font_size += key
