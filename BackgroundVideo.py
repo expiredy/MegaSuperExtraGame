@@ -29,8 +29,8 @@ def run(window, path='Sprites\BackgroundCity.mp4'):
     em = player.event_manager()
     em.event_attach(vlc.EventType.MediaPlayerTimeChanged, \
                     callback, player)
-
-    window = pygame.display.get_wm_info()['window']
+    # window = pygame.display.get_wm_info()['window']
+    # window = pygame.display.get_wm_info()['window']
     if sys.platform == "linux2":  # for Linux using the X Server
         player.set_xwindow(window)
     elif sys.platform == "win32":  # for Windows
@@ -47,11 +47,11 @@ def run(window, path='Sprites\BackgroundCity.mp4'):
     # Start movie playback
     player.play()
 
-    while player.get_state() != vlc.State.Ended:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit(2)
-            if event.type == pygame.KEYDOWN:
-                print("OMG keydown!")
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                print("we got a mouse button down!")
+    # while player.get_state() != vlc.State.Ended:
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             sys.exit(2)
+    #         if event.type == pygame.KEYDOWN:
+    #             print("OMG keydown!")
+    #         if event.type == pygame.MOUSEBUTTONDOWN:
+    #             print("we got a mouse button down!")

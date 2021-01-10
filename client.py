@@ -1,19 +1,21 @@
 import socket
+import config
+from main import player_choicing_window
 from threading import Thread
 
-SERVER = '25.41.244.86'
+# SERVER = '25.41.244.86'
+SERVER =  socket.gethostname()
 PORT = 9090
 
-client = socket.socket()
-client.connect((SERVER, PORT))
-print("Connected to server")
 
 
 def listen():
     while True:
         try:
             in_data = client.recv(1024).decode()
-            if in_data == config.
+            if in_data == config.choicing_key:
+                print('Time To choice')
+                player_choicing_window()
             print('From server:', in_data)
         except socket.error:
             print('Lost connection to server [L]')
@@ -21,10 +23,9 @@ def listen():
             break
 
 
-def send():
+def send(out_data):
     while True:
         try:
-            out_data = input()
             client.sendall(bytes(out_data, 'UTF-8'))
             if out_data == 'bye':
                 break
@@ -33,12 +34,18 @@ def send():
             client.close()
             break
 
+def run():
+    client = socket.socket()
+    client.connect((SERVER, PORT))
+    print("Connected to server")
 
-thread_listen = Thread(target=listen)
-thread_send = Thread(target=send)
+    thread_listen = Thread(target=listen)
+    # thread_send = Thread(target=send)
 
-thread_listen.start()
-thread_send.start()
+    thread_listen.start()
+    # thread_send.start()
 
-thread_listen.join()
-thread_send.join()
+    thread_listen.join()
+
+if __name__ == '__main__':
+    run()
