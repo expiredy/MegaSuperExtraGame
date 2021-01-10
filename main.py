@@ -4,7 +4,10 @@ import pygame
 import sqlite3
 import sys
 import os
+import BackgroundVideo
 import config
+import server
+import client
 from button import Button, TextButton, InputField
 from threading import Thread
 from screeninfo import get_monitors
@@ -73,6 +76,8 @@ def load_image(name, colorkey=None):
     return image
 
 def main_menu_event_checker(event, start_button, settings_button, exit_button, customize_yourself):
+    if event.type == pygame.QUIT:
+        app_exit()
     if event.type == pygame.MOUSEMOTION:
         if start_button.is_targeted(event.pos):
             start_button.target_animation()
@@ -87,7 +92,7 @@ def main_menu_event_checker(event, start_button, settings_button, exit_button, c
 
 def main_menu_script():
     global width, height
-    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=choice_game_mode,
+    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=game_entering,
                           outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205),
                           text_color=(255, 255, 255))
     exit_button = Button('Exit', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
@@ -99,7 +104,12 @@ def main_menu_script():
     customize_yourself = Button('Profile settings', width * 0.8, height * 0.8, 300, 150, func=set_info_for_game,
                              text_color=(255, 255, 255), font_size=40)
 
+    background_video = FolederWithSprites(r'BackgroundCitySprites',
+                                          "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
+                                          x_lenth=width, y_lenth=height)
+
     mafia_logo = logo_constructor('text_mafia.png', width * 0.25, 0, 1000, 800)
+    # background_video = BackgroundVideo.run(window, 'Sprites\BackgroundCity.mp4')
     background_video = FolederWithSprites(r'BackgroundCitySprites',
                                           "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
                                           x_lenth=width, y_lenth=height)
@@ -120,12 +130,15 @@ def main_menu_script():
         pygame.display.flip()
         clock.tick(fps)
     window.fill((0, 0, 0))
+    new_event.join()
 
 def connection_window():
     stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=set_info_for_game,
                          args=(False,), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while waiting_for_start:
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                app_exit()
             if event.type == pygame.MOUSEMOTION:
                 if stop_button.is_targeted(event.pos):
                     stop_button.target_animation()
@@ -141,6 +154,8 @@ def connection_window():
 def main_game_script():
     while game_is_continue:
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                app_exit()
             if event.type == pygame.KEYUP:
                 print('UP')
             elif event.type == pygame.KEYDOWN:
@@ -152,17 +167,20 @@ def main_game_script():
 
 def choicing_game_mode_window():
     global choising_game_mode
+
     back_button = Button('Back', width // 2 - 150, height * 0.8, 300, 150, func=choice_game_mode, args=(False,),
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     window.fill((0, 0, 0))
     while choising_game_mode:
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                app_exit()
             if event.type == pygame.KEYUP:
                 print('UP')
             elif event.type == pygame.KEYDOWN:
                 pass
             elif event.type == pygame.MOUSEMOTION:
-                if back_button.is_targeted(event.pos):
+                if back_button.is_targeted(event.pos, True):
                     back_button.target_animation()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 back_button.is_pressed(event.pos)
@@ -183,7 +201,8 @@ def setting_inforamtion():
 
     while set_information:
         for event in pygame.event.get():
-
+            if event.type == pygame.QUIT:
+                app_exit()
             if event.type == pygame.KEYUP:
                 name_input.checker_for_upper_letter(event)
             elif event.type == pygame.KEYDOWN:
@@ -205,6 +224,8 @@ def setting_inforamtion():
 def settings_window():
     while settings_is_active:
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                app_exit()
             if event.type == pygame.KEYUP:
                 print('UP')
             elif event.type == pygame.KEYDOWN:
@@ -214,9 +235,60 @@ def settings_window():
         clock.tick(fps)
     window.fill((0, 0, 0))
 
+def player_choicing_window():
+    pass
+
 def save_and_back_to_main_menu(name_input):
     data_save(name_input)
-    choice_game_mode(False)
+    set_info_for_game(False)
+
+def enter_game():
+    global game_entering_window
+    creating_room = Button('Create', width // 2 - 150, height // 2 - 100, 300, 150, func=choice_game_mode,
+                           outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205),
+                           text_color=(255, 255, 255))
+    connecting_to_room = Button('Connect', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
+                         background=(0, 0, 0), color_of_outline=(205, 205, 205),
+                         text_color=(255, 255, 255))
+
+    while game_entering_window:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                app_exit()
+            if event.type == pygame.KEYUP:
+                print('UP')
+            elif event.type == pygame.KEYDOWN:
+                pass
+            if event.type == pygame.MOUSEMOTION:
+                if connecting_to_room.is_targeted(event.pos):
+                    connecting_to_room.target_animation()
+                elif creating_room.is_targeted(event.pos):
+                    creating_room.target_animation()
+        creating_room.draw(window)
+        connecting_to_room.draw(window)
+        pygame.display.flip()
+        clock.tick(fps)
+        window.fill((0, 0, 0))
+
+def settings():
+    pass
+
+def game_entering(value=True):
+    global game_entering_window, main_menu_is_active
+    game_entering_window, main_menu_is_active = value, not value
+
+def game_active():
+    global waiting_for_start,  set_information
+    waiting_for_start, set_information = True, False
+
+def set_info_for_game(value=True):
+    global main_menu_is_active, set_information
+    set_information = value
+    main_menu_is_active = not value
+
+def choice_game_mode(value=True):
+    global choising_game_mode, game_entering_window
+    choising_game_mode, game_entering_window = value, not value
 
 def main_script():
     global game_is_continue, main_menu_is_active, waiting_for_start, app_is_active, fps
@@ -229,30 +301,13 @@ def main_script():
         main_game_script()
         setting_inforamtion()
         choicing_game_mode_window()
+        enter_game()
 
-def settings():
-    pass
-
-def game_active():
-    global waiting_for_start,  set_information
-    waiting_for_start, set_information = True, False
-
-def set_info_for_game(value=True):
-    global main_menu_is_active, set_information
-    set_information = value
-    main_menu_is_active = not value
-
-def choice_game_mode(value=True):
-    global choising_game_mode, main_menu_is_active
-    choising_game_mode, main_menu_is_active = value, not value
 
 def game_exit():
     global waiting_for_start, main_menu_is_active
     waiting_for_start = False
     main_menu_is_active = True
-
-def dice(start=1, end=7):
-    return random.randrange(start, end)
 
 def data_save(name_input=None):
     if name_input:
@@ -261,7 +316,7 @@ def data_save(name_input=None):
 
 def app_exit():
     global game_is_continue, waiting_for_start, main_menu_is_active, settings_is_active, app_is_active,\
-        set_information
+        set_information, choising_game_mode, game_entering_window
     data_save()
     set_information = False
     game_is_continue = False
@@ -269,6 +324,9 @@ def app_exit():
     main_menu_is_active = False
     settings_is_active = False
     app_is_active = False
+    choising_game_mode = False
+    game_entering_window = False
+
     print(exit)
 
 if __name__ == '__main__':
@@ -303,9 +361,7 @@ if __name__ == '__main__':
     waiting_for_start = False
     game_is_continue = False
     choising_game_mode = False
+    game_entering_window = False
 
-
-
-    print(dice())
     main_script()
     pygame.quit()
