@@ -115,8 +115,8 @@ def main_menu_script():
             new_event = Thread(target=main_menu_event_checker, args=(event, start_button, settings_button,
                                                                      exit_button, customize_yourself))
             new_event.start()
-        background_video.update()
-        window.blit(background_video.image, background_video.rect)
+        # background_video.update()
+        # window.blit(background_video.image, background_video.rect)
         window.blit(mafia_logo.image, mafia_logo.rect)
         start_button.draw(window)
         settings_button.draw(window)
