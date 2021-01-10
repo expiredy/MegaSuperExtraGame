@@ -5,18 +5,16 @@ from threading import Thread
 
 server_is_active = True
 # LOCALHOST = '25.41.244.86'
-LOCALHOST =  socket.gethostname()
+LOCALHOST = socket.gethostname()
 PORT = 9090
-server = socket.socket()
-server.bind((LOCALHOST, PORT))
-server.listen(10)
+
 server_members = {}
-print('Server started...')
+
 connected_players = {}
 
 class Player:
     def __init__(self, id, name=random.choice(config.ExtraTHICCnames), role=None, avatar=None,
-                 condition=config.normal_condition):
+                 condition=config.normal_condition, permission='user'):
         self.id, self.name, self.role, self.condition = id, name, role, condition
         self.avatar = avatar
 
@@ -108,6 +106,10 @@ def day_script():
 
 
 def main():
+    server = socket.socket()
+    server.bind((LOCALHOST, PORT))
+    server.listen(10)
+    print('Server started...')
     thread_connecting = Thread(target=conection)
     thread_connecting.start()
 

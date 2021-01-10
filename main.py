@@ -6,6 +6,8 @@ import sys
 import os
 import BackgroundVideo
 import config
+import server
+import client
 from button import Button, TextButton, InputField
 from threading import Thread
 from screeninfo import get_monitors
@@ -90,7 +92,7 @@ def main_menu_event_checker(event, start_button, settings_button, exit_button, c
 
 def main_menu_script():
     global width, height
-    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=choice_game_mode,
+    start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=game_entering,
                           outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205),
                           text_color=(255, 255, 255))
     exit_button = Button('Exit', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
@@ -165,6 +167,7 @@ def main_game_script():
 
 def choicing_game_mode_window():
     global choising_game_mode
+
     back_button = Button('Back', width // 2 - 150, height * 0.8, 300, 150, func=choice_game_mode, args=(False,),
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     window.fill((0, 0, 0))
@@ -232,16 +235,19 @@ def settings_window():
         clock.tick(fps)
     window.fill((0, 0, 0))
 
+def player_choicing_window():
+    pass
+
 def save_and_back_to_main_menu(name_input):
     data_save(name_input)
-    choice_game_mode(False)
+    set_info_for_game(False)
 
 def enter_game():
     global game_entering_window
-    crearing_room_button = Button('Create', width // 2 - 150, height // 2 - 100, 300, 150, func=choice_game_mode,
-                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205),
-                          text_color=(255, 255, 255))
-    connecting_to_room_button = Button('Connect', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
+    creating_room = Button('Create', width // 2 - 150, height // 2 - 100, 300, 150, func=choice_game_mode,
+                           outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205),
+                           text_color=(255, 255, 255))
+    connecting_to_room = Button('Connect', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
                          background=(0, 0, 0), color_of_outline=(205, 205, 205),
                          text_color=(255, 255, 255))
 
@@ -253,13 +259,23 @@ def enter_game():
                 print('UP')
             elif event.type == pygame.KEYDOWN:
                 pass
-
+            if event.type == pygame.MOUSEMOTION:
+                if connecting_to_room.is_targeted(event.pos):
+                    connecting_to_room.target_animation()
+                elif creating_room.is_targeted(event.pos):
+                    creating_room.target_animation()
+        creating_room.draw(window)
+        connecting_to_room.draw(window)
         pygame.display.flip()
         clock.tick(fps)
-    window.fill((0, 0, 0))
+        window.fill((0, 0, 0))
 
 def settings():
     pass
+
+def game_entering(value=True):
+    global game_entering_window, main_menu_is_active
+    game_entering_window, main_menu_is_active = value, not value
 
 def game_active():
     global waiting_for_start,  set_information
@@ -271,8 +287,8 @@ def set_info_for_game(value=True):
     main_menu_is_active = not value
 
 def choice_game_mode(value=True):
-    global choising_game_mode, main_menu_is_active
-    choising_game_mode, main_menu_is_active = value, not value
+    global choising_game_mode, game_entering_window
+    choising_game_mode, game_entering_window = value, not value
 
 def main_script():
     global game_is_continue, main_menu_is_active, waiting_for_start, app_is_active, fps
@@ -285,6 +301,8 @@ def main_script():
         main_game_script()
         setting_inforamtion()
         choicing_game_mode_window()
+        enter_game()
+
 
 def game_exit():
     global waiting_for_start, main_menu_is_active

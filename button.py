@@ -5,7 +5,7 @@ from time import sleep
 
 class Button():
     button_group = None
-    animation_max_frame = 30
+    animation_max_frame = 20
     def __init__(self, button_text, x_cord, y_cord, x_lenth, y_lenth, func=None, args=None, new_button_group=None,
                  text_color=(255, 0, 0), font_size=90, font_for_text="Lilita One Russian",
                  background=(75,85,255), backgroynd_tex=None, color_of_outline=None,
@@ -26,7 +26,6 @@ class Button():
         elif new_button_group:
             self.button_group = new_button_group
         self.name = button_text
-
         self.args = args
         self.main_function = func
         self.text_color = text_color
@@ -60,23 +59,14 @@ class Button():
         self.is_animation_started = True
         while self.is_animation_started:
             self.font_size += key
-            sleep(0.1)
+            sleep(0.05)
             self.present_animation_frame += key
-            if self.present_animation_frame <= self.animation_max_frame and not self.is_targeted(self.last_pos):
-                self.bigger_size = True
-                self.normal_size = False
-                self.present_animation_frame = self.animation_max_frame
-                self.font_size = self.start_font_size + self.animation_max_frame
-                self.is_animation_started - False
+            if self.present_animation_frame >= self.animation_max_frame or not self.is_targeted(self.last_pos):
+                self.is_animation_started = False
                 return
-            elif 0 >= self.present_animation_frame and self.is_targeted(self.last_pos):
-                self.normal_size = True
-                self.bigger_size = False
-                self.present_animation_frame = 0
-                self.font_size = self.start_font_size
-                self.is_animation_started - False
+            if self.present_animation_frame <= 0 or self.is_targeted(self.last_pos):
+                self.is_animation_started = False
                 return
-
 
     def target_animation(self):
         if self.normal_size and not self.is_animation_started:
@@ -214,3 +204,7 @@ class InputField(Button):
 class ButtonGroup():
     def __init__(self, *buttons):
         self.buttons = buttons
+
+
+class ScrollArea():
+    pass
