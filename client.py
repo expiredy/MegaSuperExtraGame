@@ -12,8 +12,9 @@ print("Connected to server")
 def listen():
     while True:
         try:
-            in_data = client.recv(1024)
-            print('From server:', in_data.decode())
+            in_data = client.recv(1024).decode()
+            if in_data == config.
+            print('From server:', in_data)
         except socket.error:
             print('Lost connection to server [L]')
             client.close()

@@ -5,7 +5,7 @@ from time import sleep
 
 class Button():
     button_group = None
-    animation_max_frame = 15
+    animation_max_frame = 30
     def __init__(self, button_text, x_cord, y_cord, x_lenth, y_lenth, func=None, args=None, new_button_group=None,
                  text_color=(255, 0, 0), font_size=90, font_for_text="Lilita One Russian",
                  background=(75,85,255), backgroynd_tex=None, color_of_outline=None,
@@ -14,6 +14,7 @@ class Button():
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
         self.color_of_outline, self.outline_lenth = color_of_outline, outline_lenth
         self.is_animation_started = False
+
         try:
             self.x_cord, self.y_cord = x_cord, y_cord
         except ValueError:
@@ -31,8 +32,12 @@ class Button():
         self.text_color = text_color
         self.present_animation_frame = 0
         self.background = background if not backgroynd_tex else backgroynd_tex
-        self.font_for_text, self.font_size = font_for_text, font_size
+        self.font_for_text, self.font_size, self.start_font_size = font_for_text, font_size, font_size
         self.start_animation,  self.end_animation = False, False
+        self.end_animarion_is_avtived, self.start_animation_is_avtived = False, False
+        self.normal_size = True
+        self.bigger_size = False
+        self.last_pos = None
 
     def is_pressed(self, pos):
         if self.is_targeted(pos):
@@ -44,38 +49,56 @@ class Button():
                     self.main_function()
 
     def text_change(self, new_text, new_color, new_font=None):
-        pass
+        self.button_text = new_text
+        self.text_color = new_color
+        self.font_for_text = new_font
 
     def default_function_for_button(self):
         pass
 
     def animation(self, key):
-        while self.is_animation_started and 0 <= self.present_animation_frame < self.animation_max_frame:
+
+        self.is_animation_started = True
+        while self.is_animation_started:
             self.font_size += key
             sleep(0.1)
             self.present_animation_frame += key
-            if key == -1:
-                print(self.font_size)
-        self.is_animation_started = False
+            if self.present_animation_frame <= self.animation_max_frame and not self.is_targeted(self.last_pos):
+                self.bigger_size = True
+                self.normal_size = False
+                self.present_animation_frame = self.animation_max_frame
+                self.font_size = self.start_font_size + self.animation_max_frame
+                self.is_animation_started - False
+                return
+            elif 0 >= self.present_animation_frame and self.is_targeted(self.last_pos):
+                self.normal_size = True
+                self.bigger_size = False
+                self.present_animation_frame = 0
+                self.font_size = self.start_font_size
+                self.is_animation_started - False
+                return
+
 
     def target_animation(self):
-        self.is_animation_started = True
-        if self.start_animation:
-            self.new_animation = Thread(target=self.animation, args=(1, ))
+        if self.normal_size and not self.is_animation_started:
+            self.new_animation = Thread(target=self.animation, args=(1,))
             self.new_animation.start()
-        elif self.end_animation:
-            self.new_animation = Thread(target=self.animation, args=(-1, ))
+        elif self.bigger_size and not self.is_animation_started:
+            self.new_animation = Thread(target=self.animation, args=(-1,))
             self.new_animation.start()
 
 
-    def is_targeted(self, pos):
-        if self.x_cord <= pos[0] <= self.x_cord + self.x_lenth and self.y_cord <= pos[1] <= self.y_cord + self.y_lenth:
-            self.start_animation = True
-            self.end_animation = False
-        else:
-            self.start_animation = False
-            self.end_animation = True
-        self.target_animation()
+    def is_targeted(self, pos, animation=False):
+        self.last_pos = pos
+        if animation:
+            if self.x_cord <= pos[0] <= self.x_cord + self.x_lenth and self.y_cord <= pos[1] <= self.y_cord + self.y_lenth:
+                self.start_animation = True
+                self.end_animation = False
+            else:
+                self.start_animation = False
+                self.end_animation = True
+            self.target_animation()
+
         return self.x_cord <= pos[0] <= self.x_cord + self.x_lenth and self.y_cord\
                <= pos[1] <= self.y_cord + self.y_lenth
 

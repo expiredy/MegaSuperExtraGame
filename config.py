@@ -1,7 +1,14 @@
 import random
 
+connection_key = 'clientConnection'
+address_key = 'ip'
+name_key = 'name'
+avatar_key = 'FacePictureThing'
+disconect_message = 'He disconncted'
+
 classic_mode = 'classic'
 configurate_mode = 'send_box'
+
 
 mafia_key = 'mafia'
 doctor_key = 'doctor'
