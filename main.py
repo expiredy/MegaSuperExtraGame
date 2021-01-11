@@ -8,6 +8,7 @@ import BackgroundVideo
 import config
 import server
 import client
+import socket
 from button import Button, TextButton, InputField
 from threading import Thread
 from screeninfo import get_monitors
@@ -153,6 +154,7 @@ def connection_window():
     window.fill((0, 0, 0))
 
 def main_game_script():
+    client.run(server_id)
     while game_is_continue:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -161,10 +163,10 @@ def main_game_script():
                 print('UP')
             elif event.type == pygame.KEYDOWN:
                 pass
-
         pygame.display.flip()
         clock.tick(fps)
     window.fill((0, 0, 0))
+
 
 def choicing_game_mode_window():
     global choising_game_mode
@@ -334,10 +336,10 @@ def app_exit():
     waiting_for_start = False
     main_menu_is_active = False
     settings_is_active = False
-    app_is_active = False
-    connection_window = False
+    connection_window_is_active = False
     choising_game_mode = False
     game_entering_window = False
+    app_is_active = False
     print(exit)
 
 if __name__ == '__main__':
@@ -365,14 +367,18 @@ if __name__ == '__main__':
     window = pygame.display.set_mode(size)
     pygame.display.flip()
     clock.tick(fps)
+    server_id = socket.gethostname()
+    # server_id = '25.41.244.86'
     app_is_active = True
     main_menu_is_active = True
     set_information = False
-    settings_is_active = False
-    waiting_for_start = False
     game_is_continue = False
+    waiting_for_start = False
+    settings_is_active = False
+    connection_window_is_active = False
     choising_game_mode = False
     game_entering_window = False
+
 
     main_script()
     pygame.quit()
