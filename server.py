@@ -39,8 +39,7 @@ class Player:
         return name
 
 def conection():
-    global server_is_active, server
-    server.listen(2)
+    global server_is_active
     while server_is_active:
         clientConnection, clientAddress = server.accept()
         server_members[len(list(server_members.keys()))] = {config.connection_key: clientConnection,
@@ -147,6 +146,7 @@ def main():
     LOCALHOST = '25.114.239.89'
     server = socket.socket()
     server.bind((LOCALHOST, PORT))
+    server.listen(2)
     print('Server started...')
     thread_connecting = Thread(target=conection)
     thread_connecting.start()
@@ -155,4 +155,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+ main()
