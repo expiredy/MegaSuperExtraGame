@@ -127,13 +127,14 @@ def main_menu_script():
         settings_button.draw(window)
         customize_yourself.draw(window)
         exit_button.draw(window)
+        new_event.join()
         pygame.display.flip()
         clock.tick(fps)
     window.fill((0, 0, 0))
-    new_event.join()
+
 
 def connection_window():
-    stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=set_info_for_game,
+    stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_active(),
                          args=(False,), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while waiting_for_start:
         for event in pygame.event.get():
@@ -247,7 +248,7 @@ def enter_game():
     creating_room = Button('Create', width // 2 - 150, height // 2 - 100, 300, 150, func=choice_game_mode,
                            outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205),
                            text_color=(255, 255, 255))
-    connecting_to_room = Button('Connect', width // 2 - 150, height * 0.815, 300, 150, func=app_exit, outline_lenth=10,
+    connecting_to_room = Button('Connect', width // 2 - 150, height * 0.815, 300, 150, func=game_active, outline_lenth=10,
                          background=(0, 0, 0), color_of_outline=(205, 205, 205),
                          text_color=(255, 255, 255))
 
@@ -264,6 +265,9 @@ def enter_game():
                     connecting_to_room.target_animation()
                 elif creating_room.is_targeted(event.pos):
                     creating_room.target_animation()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                connecting_to_room.is_pressed(event.pos)
+                creating_room.is_pressed(event.pos)
         creating_room.draw(window)
         connecting_to_room.draw(window)
         pygame.display.flip()
@@ -277,9 +281,13 @@ def game_entering(value=True):
     global game_entering_window, main_menu_is_active
     game_entering_window, main_menu_is_active = value, not value
 
-def game_active():
-    global waiting_for_start,  set_information
-    waiting_for_start, set_information = True, False
+def game_active(value=True):
+    global waiting_for_start, game_entering_window
+    waiting_for_start, game_entering_window = value, not value
+
+def game_create(value=True):
+    global waiting_for_start, choising_game_mode
+    choising_game_mode, waiting_for_start = value, not value
 
 def set_info_for_game(value=True):
     global main_menu_is_active, set_information
@@ -290,18 +298,21 @@ def choice_game_mode(value=True):
     global choising_game_mode, game_entering_window
     choising_game_mode, game_entering_window = value, not value
 
+def connect_to_room(valie=True):
+    pass
+
 def main_script():
     global game_is_continue, main_menu_is_active, waiting_for_start, app_is_active, fps
     # loading = AnimatedSprite(load_image("loading.png"), 8, 2, 50, 50)
     window.fill((0, 0, 0))
     while app_is_active:
         main_menu_script()
+        enter_game()
         connection_window()
         settings_window()
         main_game_script()
         setting_inforamtion()
         choicing_game_mode_window()
-        enter_game()
 
 
 def game_exit():
@@ -324,9 +335,9 @@ def app_exit():
     main_menu_is_active = False
     settings_is_active = False
     app_is_active = False
+    connection_window = False
     choising_game_mode = False
     game_entering_window = False
-
     print(exit)
 
 if __name__ == '__main__':

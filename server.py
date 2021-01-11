@@ -142,7 +142,6 @@ def main():
         morninig_script()
         day_script()
 
-
     thread_connecting.join()
     thread_listen.join()
     thread_send.join()
