@@ -4,16 +4,15 @@ import config
 from threading import Thread
 
 server_is_active = True
-# LOCALHOST = '25.41.244.86'
-LOCALHOST = socket.gethostname()
+LOCALHOST = '25.41.244.86'
+# LOCALHOST = socket.gethostname()
 PORT = 9090
 
 server_members = {}
 
-connected_players = {}
 
 class Player:
-    def __init__(self, id, name=random.choice(config.ExtraTHICCnames), role=None, avatar=None,
+    def __init__(self, id, name=random.choice(config.ExtraTHICCnames), role=None, avatar=config.user_avatar,
                  condition=config.normal_condition, permission='user'):
         self.id, self.name, self.role, self.condition = id, name, role, condition
         self.avatar = avatar
@@ -41,6 +40,7 @@ class Player:
 
 def conection():
     global server_is_active
+    server.listen(10)
     while server_is_active:
         clientConnection, clientAddress = server.accept()
         server_members[len(list(server_members.keys()))] = {config.connection_key: clientConnection,
@@ -66,7 +66,7 @@ def listen(id):
         try:
             in_data = clientConnection.recv(1024)
             message = in_data.decode()
-            if message == sonfig.disconect_message:
+            if message == config.disconect_message:
                 break
             return message
         except socket.error:
@@ -81,6 +81,11 @@ def send(out_data):
     except socket.error:
         print("Lost connection to client [S]")
         clientConnection.close()
+
+
+def anunsment():
+    for player in list(server_members.keys()):
+        pass
 
 def send_to_client(id):
     pass
@@ -97,55 +102,58 @@ def night_script():
 
 
 def morninig_script():
-    pass
+    anounsment()
 
 
 def day_script():
     choicing_player(config.inhabitants_key)
 
-
-
-def main():
-    server = socket.socket()
-    server.bind((LOCALHOST, PORT))
-    server.listen(10)
-    print('Server started...')
-    thread_connecting = Thread(target=conection)
-    thread_connecting.start()
-
+def game_active():
     mode = config.classic_mode
     amount_players = int(input("Сколько игроков в игре? "))
     amount_mafia = int(input("Сколько мафий в игре? "))
     amount_doctors = 1
     amount_detectives = 1
-    players = {}
+    players_roles = {}
 
     if mode == config.configurate_mode:
         amount_doctors = int(input("Сколько докторов в игре? "))
         amount_detectives = int(input("Сколько детективов в игре? "))
     total_players = list(range(0, amount_players))
     random.shuffle(total_players)
-    players[config.mafia_key] = [total_players.pop() for _ in range(amount_mafia)]
-    players[config.doctor_key] = [total_players.pop() for _ in range(amount_doctors)]
-    players[config.detective_key] = [total_players.pop() for _ in range(amount_detectives)]
+    players_roles[config.mafia_key] = [total_players.pop() for _ in range(amount_mafia)]
+    players_roles[config.doctor_key] = [total_players.pop() for _ in range(amount_doctors)]
+    players_roles[config.detective_key] = [total_players.pop() for _ in range(amount_detectives)]
     if mode != config.classic_mode:
         pass
-    players[config.inhabitants_key] = total_players
+    players_roles[config.inhabitants_key] = total_players
 
     for key in list(config.classic_order.keys()):
-        for player in range(len(players[config.classic_order[key]])):
+        for player in range(len(players_roles[config.classic_order[key]])):
             print(player, 'is', config.classic_order[key])
 
 
-    while all([total_players[mafia].is_alive() for mafia in total_players[config.mafia_key]]):
+    while all([server_members[mafia].is_alive() for mafia in players_roles[config.mafia_key]]):
         night_script()
         morninig_script()
         day_script()
 
-
     thread_connecting.join()
     thread_listen.join()
     thread_send.join()
+
+def main():
+    global server
+    LOCALHOST = '25.114.239.89'
+    server = socket.socket()
+    server.bind((LOCALHOST, PORT))
+
+    print('Server started...')
+    thread_connecting = Thread(target=conection)
+    thread_connecting.start()
+    game_active()
+
+
 
 if __name__ == '__main__':
     main()
