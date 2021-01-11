@@ -54,4 +54,3 @@ def run(window, path='Sprites\BackgroundCity.mp4'):
     #         if event.type == pygame.KEYDOWN:
     #             print("OMG keydown!")
     #         if event.type == pygame.MOUSEBUTTONDOWN:
-    #             print("we got a mouse button down!")
