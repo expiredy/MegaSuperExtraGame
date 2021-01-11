@@ -76,20 +76,6 @@ def load_image(name, colorkey=None):
     image = pygame.image.load(fullname)
     return image
 
-def main_menu_event_checker(event, start_button, settings_button, exit_button, customize_yourself):
-    if event.type == pygame.QUIT:
-        app_exit()
-    if event.type == pygame.MOUSEMOTION:
-        if start_button.is_targeted(event.pos):
-            start_button.target_animation()
-        elif settings_button.is_targeted(event.pos):
-            pass
-        elif exit_button.is_targeted(event.pos):
-            exit_button.target_animation()
-    elif event.type == pygame.MOUSEBUTTONDOWN:
-        customize_yourself.is_pressed(event.pos)
-        start_button.is_pressed(event.pos)
-        exit_button.is_pressed(event.pos)
 
 def main_menu_script():
     global width, height
@@ -118,9 +104,19 @@ def main_menu_script():
     # thread_with_logo.start()
     while main_menu_is_active:
         for event in pygame.event.get():
-            new_event = Thread(target=main_menu_event_checker, args=(event, start_button, settings_button,
-                                                                     exit_button, customize_yourself))
-            new_event.start()
+            if event.type == pygame.QUIT:
+                app_exit()
+            if event.type == pygame.MOUSEMOTION:
+                if start_button.is_targeted(event.pos):
+                    start_button.target_animation()
+                elif settings_button.is_targeted(event.pos):
+                    pass
+                elif exit_button.is_targeted(event.pos):
+                    exit_button.target_animation()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                customize_yourself.is_pressed(event.pos)
+                start_button.is_pressed(event.pos)
+                exit_button.is_pressed(event.pos)
         background_video.update()
         window.blit(background_video.image, background_video.rect)
         window.blit(mafia_logo.image, mafia_logo.rect)
@@ -128,14 +124,14 @@ def main_menu_script():
         settings_button.draw(window)
         customize_yourself.draw(window)
         exit_button.draw(window)
-        new_event.join()
         pygame.display.flip()
         clock.tick(fps)
     window.fill((0, 0, 0))
 
 
 def connection_window():
-    stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_active(),
+    global waiting_for_start
+    stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_active,
                          args=(False,), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while waiting_for_start:
         for event in pygame.event.get():
@@ -154,7 +150,7 @@ def connection_window():
     window.fill((0, 0, 0))
 
 def main_game_script():
-    client.run(server_id)
+    # client.run(server_id)
     while game_is_continue:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -195,12 +191,14 @@ def choicing_game_mode_window():
     window.fill((0, 0, 0))
 
 def setting_inforamtion():
-    name_input = InputField(width // 2 - 250, height * 0.1, 500, 150)
+    global set_inforamtion
+    name_input = InputField(width // 2 - 250, height * 0.1, 500, 150, initial_text=config.player_name)
     back_button = Button('Back', width // 2 - 150, height * 0.8, 300, 150, func=set_info_for_game, args=(False,),
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     save_button = Button('Save', width // 2 + 150, height * 0.8, 300, 150, func=save_and_back_to_main_menu,
                          args=(name_input,),
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
+
 
     while set_information:
         for event in pygame.event.get():
@@ -250,10 +248,15 @@ def enter_game():
     creating_room = Button('Create', width // 2 - 150, height // 2 - 100, 300, 150, func=choice_game_mode,
                            outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205),
                            text_color=(255, 255, 255))
-    connecting_to_room = Button('Connect', width // 2 - 150, height * 0.815, 300, 150, func=game_active, outline_lenth=10,
+    connecting_to_room = Button('Connect', width // 2 - 150, height * 0.6, 300, 150, func=game_active,
+                                outline_lenth=10,
+                            background=(0, 0, 0), color_of_outline=(205, 205, 205),
+                            text_color=(255, 255, 255))
+
+    back_button = Button('Back', width // 2 - 150, height * 0.815, 300, 150, func=game_entering, args=(False, ),
+                         outline_lenth=10,
                          background=(0, 0, 0), color_of_outline=(205, 205, 205),
                          text_color=(255, 255, 255))
-
     while game_entering_window:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -267,11 +270,15 @@ def enter_game():
                     connecting_to_room.target_animation()
                 elif creating_room.is_targeted(event.pos):
                     creating_room.target_animation()
+                elif back_button.is_targeted(event.pos):
+                    back_button.target_animation()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 connecting_to_room.is_pressed(event.pos)
                 creating_room.is_pressed(event.pos)
+                back_button.is_pressed(event.pos)
         creating_room.draw(window)
         connecting_to_room.draw(window)
+        back_button.draw(window)
         pygame.display.flip()
         clock.tick(fps)
         window.fill((0, 0, 0))
@@ -304,20 +311,25 @@ def connect_to_room(valie=True):
     pass
 
 def main_script():
-    global game_is_continue, main_menu_is_active, waiting_for_start, app_is_active, fps
-    # loading = AnimatedSprite(load_image("loading.png"), 8, 2, 50, 50)
-    window.fill((0, 0, 0))
+    global waiting_for_start
     while app_is_active:
+        print(waiting_for_start, 'started ne loop')
         main_menu_script()
+        print(waiting_for_start, 'After main_menu')
         enter_game()
-        connection_window()
-        settings_window()
-        main_game_script()
+        print(waiting_for_start, 'After enter_game')
         setting_inforamtion()
+        print(waiting_for_start, 'after Setting info')
+        settings_window()
+        print(waiting_for_start, 'ha-ha this is typo settings')
         choicing_game_mode_window()
+        print(waiting_for_start, 'Game mode is SUCK')
+        connection_window()
+        print(waiting_for_start, 'xD connections go brrrr')
+        main_game_script()
+        print(waiting_for_start, 'PFFFFFFFFFF, game? Shut up')
 
-
-def game_exit():
+def gamer_exit():
     global waiting_for_start, main_menu_is_active
     waiting_for_start = False
     main_menu_is_active = True
@@ -336,7 +348,6 @@ def app_exit():
     waiting_for_start = False
     main_menu_is_active = False
     settings_is_active = False
-    connection_window_is_active = False
     choising_game_mode = False
     game_entering_window = False
     app_is_active = False
@@ -359,7 +370,7 @@ if __name__ == '__main__':
 
     total_cards = {}
     buttons = {}
-    fps = 144
+    fps = 60
     clock = pygame.time.Clock()
     width, height = monitor.width, monitor.height
     size = width, height
@@ -375,10 +386,8 @@ if __name__ == '__main__':
     game_is_continue = False
     waiting_for_start = False
     settings_is_active = False
-    connection_window_is_active = False
     choising_game_mode = False
     game_entering_window = False
 
-
     main_script()
-    pygame.quit()
+    pygame.quit ()

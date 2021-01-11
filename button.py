@@ -125,7 +125,7 @@ class TextButton(Button):
 class InputField(Button):
     max_animation_frame = 30
     def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record",
-                 font_size=50, text_color=(255, 0, 0),
+                 font_size=50, text_color=(255, 0, 0), initial_text='',
                  background=(155,155,155), input_is_active=True):
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
         self.input_is_active = input_is_active
@@ -134,9 +134,9 @@ class InputField(Button):
         self.present_animation_frame = 0
         self.text_color = text_color
         self.background = background
-        self.text = ''
+        self.text = initial_text
         self.is_separator = False
-        self.now_position = 0
+        self.now_position = len(self.text)
         self.is_upper = False
 
     def checker_for_upper_letter(self, event):
@@ -147,8 +147,13 @@ class InputField(Button):
         if self.input_is_active:
             if event.key == pygame.K_BACKSPACE:
                 self.text = self.text[:self.now_position][:-1] + self.text[self.now_position:]
-                self.now_position -= 1
-                if len(self.text) < self.now_position:
+                self.now_position -= 1 if self.now_position >= 1 else 0
+                if len(self.text) <= self.now_position:
+                    self.now_position = len(self.text)
+            elif event.key == pygame.K_DELETE:
+                self.text = self.text[:self.now_position] + self.text[self.now_position:][1:]
+                self.now_position -= 1 if self.now_position >= 1 else 0
+                if len(self.text) <= self.now_position:
                     self.now_position = len(self.text)
             elif event.key == pygame.K_CLEAR:
                 pass
