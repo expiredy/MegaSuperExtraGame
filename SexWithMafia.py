@@ -61,7 +61,7 @@ def listen(tag=None):
 def send(out_data):
     global server_is_active
     try:
-        clientConnection.send(bytes(out_data, 'UTF-8'))
+        clientConnection.send_to_client(bytes(out_data, 'UTF-8'))
     except socket.error:
         print("Lost connection to client [S]")
         clientConnection.close()
