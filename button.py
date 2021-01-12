@@ -125,7 +125,7 @@ class TextButton(Button):
 class InputField(Button):
     max_animation_frame = 30
     def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record",
-                 font_size=50, text_color=(255, 0, 0), initial_text='',
+                 font_size=50, text_color=(255, 0, 0), initial_text='', func=None,
                  background=(155,155,155), input_is_active=True):
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
         self.input_is_active = input_is_active
@@ -135,6 +135,7 @@ class InputField(Button):
         self.text_color = text_color
         self.background = background
         self.text = initial_text
+        self.func = func
         self.is_separator = False
         self.now_position = len(self.text)
         self.is_upper = False
@@ -158,6 +159,9 @@ class InputField(Button):
             elif event.key == pygame.K_CLEAR:
                 pass
             elif event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
+                if self.func:
+                    self.thread = Thread(target=self.func, args=(self.text))
+                    self.thread.start()
                 self.input_is_active = False
             elif event.key in [pygame.K_LSHIFT, pygame.K_RSHIFT]:
                 self.is_upper = True
@@ -213,3 +217,21 @@ class ButtonGroup():
 
 class ScrollArea():
     pass
+
+class TextViewer():
+    def __init__(self, text, x_cord, y_cord, x_lenth, y_lenth,
+                 text_color=(255, 0, 0), font_size=90, font_for_text="Lilita One Russian",
+                 background=None, backgroynd_tex=None, color_of_outline=None,
+                 outline_lenth=None):
+        self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
+        self.text = text
+        self.font_size, self.font_for_text = font_size, font_for_text
+        self.text_color = text_color
+        self.background = background
+
+    def draw(self, canvas):
+        pygame.font.init()
+        myfont = pygame.font.SysFont(self.font_for_text, self.font_size)
+        textsurface = myfont.render(self.text, False, self.text_color)
+        if self.background:
+            pygame.draw.rect(canvas, self.background, (self.x_cord, self.y_cord, self.x_lenth, self.y_lenth))

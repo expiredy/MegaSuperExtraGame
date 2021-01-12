@@ -8,6 +8,7 @@ import BackgroundVideo
 import config
 import server
 import client
+import online
 import socket
 from button import Button, TextButton, InputField
 from threading import Thread
@@ -128,9 +129,9 @@ def main_menu_script():
         clock.tick(fps)
     window.fill((0, 0, 0))
 
-
 def connection_window():
     global waiting_for_start
+    get_key = InputField(width // 2 - 250, height * 0.1, 500, 150)
     stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_active,
                          args=(False,), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while waiting_for_start:
@@ -143,11 +144,16 @@ def connection_window():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 print(event.pos)
                 stop_button.is_pressed(event.pos)
+                get_key.is_pressed(event.pos)
+        get_key.draw(window)
         stop_button.draw(window)
         pygame.display.flip()
         clock.tick(fps)
 
     window.fill((0, 0, 0))
+
+def start_connection(room_key):
+    online.activate(room_key)
 
 def main_game_script():
     # client.run(server_id)
@@ -166,7 +172,8 @@ def main_game_script():
 
 def choicing_game_mode_window():
     global choising_game_mode
-
+    classic_mode = Button('Classic', width // 2 - 150, height * 0.1, 300, 150, func=choice_game_mode, args=(False,),
+                         outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     back_button = Button('Back', width // 2 - 150, height * 0.8, 300, 150, func=choice_game_mode, args=(False,),
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     window.fill((0, 0, 0))
