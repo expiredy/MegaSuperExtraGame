@@ -55,5 +55,5 @@ def create():
     new_thread.start()
     return
 
-def connect(generated_key, next_func):
+def connect(generated_key):
     pass

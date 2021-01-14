@@ -157,7 +157,7 @@ def start_connection():
 
 def main_game_script():
     key_for_room = TextViewer(config.room_key, width // 2 - 150, height * 0.1, 300, 150,)
-    window.fill((0, 0, 0))
+    window.fill((122, 122, 122))
     # client.run(server_id)
     while game_is_continue:
         for event in pygame.event.get():
@@ -308,7 +308,7 @@ def game_create(value=True):
     global waiting_for_start, choising_game_mode
     choising_game_mode, waiting_for_start = value, not value
 
-def starting_classic_game(value=True):
+def  starting_classic_game(value=True):
     global game_is_continue, choicing_game_mode
     if value:
         start_connection()
