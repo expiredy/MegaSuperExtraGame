@@ -10,7 +10,7 @@ import server
 import client
 import online
 import socket
-from button import Button, TextButton, InputField
+from button import Button, TextButton, InputField, TextViewer
 from threading import Thread
 from screeninfo import get_monitors
 
@@ -152,10 +152,12 @@ def connection_window():
 
     window.fill((0, 0, 0))
 
-def start_connection(room_key):
-    online.activate(room_key)
+def start_connection():
+    online.create()
 
 def main_game_script():
+    key_for_room = TextViewer(config.room_key, width // 2 - 150, height * 0.1, 300, 150,)
+    window.fill((0, 0, 0))
     # client.run(server_id)
     while game_is_continue:
         for event in pygame.event.get():
@@ -165,6 +167,7 @@ def main_game_script():
                 print('UP')
             elif event.type == pygame.KEYDOWN:
                 pass
+        key_for_room.draw(window)
         pygame.display.flip()
         clock.tick(fps)
     window.fill((0, 0, 0))
@@ -172,8 +175,8 @@ def main_game_script():
 
 def choicing_game_mode_window():
     global choising_game_mode
-    classic_mode = Button('Classic', width // 2 - 150, height * 0.1, 300, 150, func=choice_game_mode, args=(False,),
-                         outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
+    classic_mode = Button('Classic', width // 2 - 150, height * 0.1, 300, 150, func=starting_classic_game, args=(True,),
+                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     back_button = Button('Back', width // 2 - 150, height * 0.8, 300, 150, func=choice_game_mode, args=(False,),
                          outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     window.fill((0, 0, 0))
@@ -190,8 +193,8 @@ def choicing_game_mode_window():
                     back_button.target_animation()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 back_button.is_pressed(event.pos)
-
-
+                classic_mode.is_pressed(event.pos)
+        classic_mode.draw(window)
         back_button.draw(window)
         pygame.display.flip()
         clock.tick(fps)
@@ -305,6 +308,14 @@ def game_create(value=True):
     global waiting_for_start, choising_game_mode
     choising_game_mode, waiting_for_start = value, not value
 
+def starting_classic_game(value=True):
+    global game_is_continue, choicing_game_mode
+    if value:
+        start_connection()
+    config.game_mode = config.classic_mode
+    game_is_continue, choicing_game_mode = value, not value
+
+
 def set_info_for_game(value=True):
     global main_menu_is_active, set_information
     set_information = value
@@ -320,21 +331,21 @@ def connect_to_room(valie=True):
 def main_script():
     global waiting_for_start
     while app_is_active:
-        print(waiting_for_start, 'started ne loop')
+
         main_menu_script()
-        print(waiting_for_start, 'After main_menu')
+
         enter_game()
-        print(waiting_for_start, 'After enter_game')
+
         setting_inforamtion()
-        print(waiting_for_start, 'after Setting info')
+
         settings_window()
-        print(waiting_for_start, 'ha-ha this is typo settings')
+
         choicing_game_mode_window()
-        print(waiting_for_start, 'Game mode is SUCK')
+
         connection_window()
-        print(waiting_for_start, 'xD connections go brrrr')
+
         main_game_script()
-        print(waiting_for_start, 'PFFFFFFFFFF, game? Shut up')
+
 
 def gamer_exit():
     global waiting_for_start, main_menu_is_active

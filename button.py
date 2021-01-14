@@ -1,3 +1,6 @@
+__all__ = ('Button', 'TextButton', 'InputField', 'TextViewer')
+
+
 import pygame
 from threading import Thread
 from time import sleep
@@ -59,6 +62,8 @@ class Button():
         self.is_animation_started = True
         while self.is_animation_started:
             self.font_size += key
+            if self.outline_lenth:
+                self.outline_lenth += key
             sleep(0.05)
             self.present_animation_frame += key
             if self.present_animation_frame >= self.animation_max_frame or not self.is_targeted(self.last_pos):
@@ -235,3 +240,4 @@ class TextViewer():
         textsurface = myfont.render(self.text, False, self.text_color)
         if self.background:
             pygame.draw.rect(canvas, self.background, (self.x_cord, self.y_cord, self.x_lenth, self.y_lenth))
+        canvas.blit(textsurface, (self.x_cord, self.y_cord + (self.y_lenth - myfont.size(self.text)[1]) // 2))

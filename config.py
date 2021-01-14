@@ -16,6 +16,7 @@ sender_key = 'send'
 
 user_avatar = 'Sprites\Boi.jpg'
 
+game_mode = classic_mode
 
 mafia_key = 'mafia'
 doctor_key = 'doctor'
@@ -26,7 +27,7 @@ viewer_key = 'viewer'
 classic_order = {0: mafia_key, 1: doctor_key, 2: detective_key}
 
 ExtraTHICCnames = ['ExtraAss228', 'Tom', 'Rapper № 1', 'Letov(Is he is fake one?)', 'CumCopter1488',
-                   'CumBoi', 'Bo$$ of the Jimm']
+                   'CumBoi', 'Bo$$ of the Jimm', 'Cum',]
 
 
 player_name = random.choice(ExtraTHICCnames)
@@ -40,7 +41,9 @@ normal_condition = 'stay_awake'
 condition_for_sleep = 'sleep'
 viewer_condition = 'EyeInTheSky'
 
+room_key = ''
 
+main_room_id = 798532664717606922
 server_id = 798338351086043136
 room_id = None
-server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA.GzVxsOe8kD-kCq0DR28j0WJ5BGM'
+server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA.Vqz3FES4blSp2QO56gON8nvtj9Q'
