@@ -54,14 +54,13 @@ pygame.init()
 
 level = [
     "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-    "W    WWW     WWWWW           W  W  W     EW",
-    "W    WWW W       W  WWWWWWW  W      W   w W",
-    "W    W   W   WW  W        W  W  W W     W W",
-    "W    W WW W  W   W  WWWWWWW  W  W  W  W  WW",
-    "W    W   W   W   W  W        W    W W  W  W",
-    "W    WWW W W W      W        W  W     W   W",
-    "W        WWW WW  WWW         W   W   W W  W",
-    "W                                         W",
+    "W       WWWW   WW       WWW    W    WWWWWWW",
+    "WW WWWW    W W        W W    W WWW  W     W",
+    "W     W WW W W W W    W W   W  W    W WWW W",
+    "WWWWW   W    W W WWWW W    W   W W  W WEW W",
+    "W      WWWWWW  W      W W  W WW  W  W W   W",
+    "W  WWWW      W W W  W  WWW W  W W  WW WWWWW",
+    "W       WWWW     W   W     W    W         W",
     "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
 ]
 
