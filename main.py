@@ -92,15 +92,15 @@ def main_menu_script():
     customize_yourself = Button('Profile settings', width * 0.8, height * 0.8, 300, 150, func=set_info_for_game,
                              text_color=(255, 255, 255), font_size=40)
 
-    background_video = FolederWithSprites(r'BackgroundCitySprites',
-                                          "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
-                                          x_lenth=width, y_lenth=height)
+    # background_video = FolederWithSprites(r'BackgroundCitySprites',
+    #                                       "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
+    #                                       x_lenth=width, y_lenth=height)
 
     mafia_logo = logo_constructor('text_mafia.png', width * 0.25, 0, 1000, 800)
-    # background_video = BackgroundVideo.run(window, 'Sprites\BackgroundCity.mp4')
-    background_video = FolederWithSprites(r'BackgroundCitySprites',
-                                          "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
-                                          x_lenth=width, y_lenth=height)
+    background_video = BackgroundVideo.run(os.path.join('Sprites', 'BackgroundCity.mp4'))
+    # background_video = FolederWithSprites(r'BackgroundCitySprites',
+    #                                       "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
+    #                                       x_lenth=width, y_lenth=height)
     # thread_with_logo = Thread(target=background_drawer, args=(mafia_logo,))
     # thread_with_logo.start()
     while main_menu_is_active:
@@ -118,8 +118,18 @@ def main_menu_script():
                 customize_yourself.is_pressed(event.pos)
                 start_button.is_pressed(event.pos)
                 exit_button.is_pressed(event.pos)
-        background_video.update()
-        window.blit(background_video.image, background_video.rect)
+        ret, frame = background_video.read()
+        if ret == True:
+            window.blit(pygame.image.frombuffer(frame, frame.shape[1::-1], "BGR"), (0, 0))
+            window.blit(mafia_logo.image, mafia_logo.rect)
+            start_button.draw(window)
+            settings_button.draw(window)
+            customize_yourself.draw(window)
+            exit_button.draw(window)
+            pygame.display.flip()
+            window.fill((0, 0, 0))
+        # background_video.update()
+        # window.blit(background_video.image, background_video.rect)
         window.blit(mafia_logo.image, mafia_logo.rect)
         start_button.draw(window)
         settings_button.draw(window)
@@ -131,14 +141,20 @@ def main_menu_script():
 
 def connection_window():
     global waiting_for_start
-    get_key = InputField(width // 2 - 250, height * 0.1, 500, 150)
-    stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_active,
-                         args=(False,), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
+    if waiting_for_start:
+        get_key = InputField(width // 2 - 250, height * 0.1, 500, 150, func=online.connect)
+        online.send(give_information())
+        stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_active,
+                             args=(False,), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while waiting_for_start:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 app_exit()
-            if event.type == pygame.MOUSEMOTION:
+            elif event.type == pygame.KEYDOWN:
+                get_key.activate_input(event)
+            elif event.type == pygame.KEYDOWN:
+                get_key.activate_input(event)
+            elif event.type == pygame.MOUSEMOTION:
                 if stop_button.is_targeted(event.pos):
                     stop_button.target_animation()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -356,6 +372,9 @@ def data_save(name_input=None):
     if name_input:
         config.player_name = str(name_input)
     print(config.player_name)
+
+def give_information():
+    return config.player_name
 
 def app_exit():
     global game_is_continue, waiting_for_start, main_menu_is_active, settings_is_active, app_is_active,\

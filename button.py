@@ -241,3 +241,7 @@ class TextViewer():
         if self.background:
             pygame.draw.rect(canvas, self.background, (self.x_cord, self.y_cord, self.x_lenth, self.y_lenth))
         canvas.blit(textsurface, (self.x_cord, self.y_cord + (self.y_lenth - myfont.size(self.text)[1]) // 2))
+
+class Chat():
+    def __init__(self):
+        self.printed_messages = []
