@@ -4,8 +4,10 @@ import random
 import string
 import asyncio
 import multiprocess
-bot = None
+from multiprocess import Process, Lock
+server = None
 passwords = []
+role = None
 bad_symbols = ['l', 'I', '1', '0', 'O', 'o']
 
 
@@ -35,17 +37,11 @@ class Server(discord.Client):
         self.connection_type = connection_type
         self.id_of_room = None
 
-
     def check_room(self, key):
         return key in self.guild.channels
 
-
-
     async def sender(self, text):
         await self.get_channel(self.id_of_room).send(text)
-
-
-
 
     async def on_ready(self):
         self.generated_key = generate_key()
@@ -57,12 +53,23 @@ class Server(discord.Client):
 
     async def on_message(self, message):
         print(message)
+        separator = ''
         if message.channel.id == self.id_of_room:
             if self.connection_type == config.host_user:
                 if message.content.startswith(config.connected_event):
                     pass
-                elif message.content.split()[0].isdigit():
+                elif message.content.split(separator)[0].isdigit():
                     pass
+                elif message.content.startswith(config.dead_event):
+                    pass
+                elif message.content.startswith(config.vote_event):
+                    pass
+            if message.content.split(separator)[0] == config.game_start_event:
+                pass
+            if message.content.split(separator)[0] == config.message_sended:
+                print(message.content)
+            # elif message.content.split(separator)[0] == config.t_event:
+            #     pass
 
 
 
@@ -78,36 +85,33 @@ def generate_key(len_of_password=6):
     return ''.join(key.lower().split())
 
 
-def activate(token, connection_type=config.connected_user):
-    global bot
-    bot = Server(connection_type)
-    bot.run(token)
+def activate(token, server):
+    global role
+    role = config.host_user
+    server.value = Server(role)
+    config.server.run(token)
+
 
 def create():
-    new_thread = multiprocess.Process(target=activate, args=(config.server_token, config.host_user))
+
+    num = multiprocess.Array( Server(config.host_user),  range(2))
+    new_thread = multiprocess.Process(target=activate, args=(config.server_token, num))
     new_thread.start()
     return
 
 def connect(generated_key):
-    new_thread = multiprocess.Process(target=activate, args=(config.server_token, config.connected_user))
+    new_thread = multiprocess.Process(target=activate, args=(config.server_token, config.server))
     new_thread.start()
+    config.server = new_thread.get()
     return
 
-def waiting_for_connection(text):
-    global bot
-    while not bot:
-        pass
-    send(text)
 
 def send(text):
-    global bot
-    if bot:
+    print(config.server)
+    if config.server:
         ioloop = asyncio.get_event_loop()
         print(ioloop)
-        new_task = ioloop.create_task(bot.sender(text))
+        new_task = ioloop.create_task(config.server.sender(text))
         asyncio.wait(new_task)
-        ioloop.run_until_complete(wait_tasks)
+        ioloop.run_until_complete(new_task)
         ioloop.close()
-    else:
-        wait_for_connecntion = multiprocess.Process(target=waiting_for_connection, args=(text, ))
-        wait_for_connecntion.start()
