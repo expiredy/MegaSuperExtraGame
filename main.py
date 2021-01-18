@@ -36,7 +36,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
 
-class FolederWithSprites(pygame.sprite.Sprite):
+class FolderWithSprites(pygame.sprite.Sprite):
     max_frame = 0
     def __init__(self, path, base_name, start_value='000', targeted_max_value='100', image_resolution='png',
                  x_cord=0, y_cord=0, x_lenth=1920, y_lenth=1080,
@@ -91,13 +91,13 @@ def main_menu_script():
     customize_yourself = Button('Profile settings', width * 0.8, height * 0.8, 300, 150, func=set_info_for_game,
                              text_color=(255, 255, 255), font_size=40)
 
-    # background_video = FolederWithSprites(r'BackgroundCitySprites',
+    # background_video = FolderWithSprites(r'BackgroundCitySprites',
     #                                       "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
     #                                       x_lenth=width, y_lenth=height)
 
     mafia_logo = logo_constructor('text_mafia.png', width * 0.25, 0, 1000, 800)
     background_video = BackgroundVideo.run(os.path.join('Sprites', 'BackgroundCity.mp4'))
-    # background_video = FolederWithSprites(r'BackgroundCitySprites',
+    # background_video = FolderWithSprites(r'BackgroundCitySprites',
     #                                       "BackgroundCity ", "0001", "0995", ".jpg", x_cord=0, y_cord=0,
     #                                       x_lenth=width, y_lenth=height)
     # thread_with_logo = Thread(target=background_drawer, args=(mafia_logo,))
@@ -134,9 +134,10 @@ def main_menu_script():
 
 def lobby_for_connectors():
     global waiting_for_connections
+    print(online.role)
     if online.role == config.host_user:
         start_button = Button('Start', width // 2 - 150, height * 0.815, 300, 150,
-                              func=online.send, args=(config.start_event,),
+                              func=online.game_start, args=(config.game_start_event,),
                               outline_lenth=10,
                               background=(0, 0, 0), color_of_outline=(205, 205, 205),
                               text_color=(255, 255, 255))
@@ -148,7 +149,9 @@ def lobby_for_connectors():
                 if online.role == config.host_user and start_button.is_targeted(event.pos):
                     start_button.target_animation()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                start_button.is_pressed(event.pos)
+                if online.role == config.host_user:
+                    start_button.is_pressed(event.pos)
+        window.fill((140, 20, 30))
         if online.role == config.host_user:
             start_button.draw(window)
         pygame.display.flip()
@@ -402,16 +405,22 @@ def gamer_exit():
     main_menu_is_active = True
 
 def data_save(name_input=None):
+
     if name_input:
+        with open(config.name_path, 'rt') as f:
+            f.truncate()
+            f.write(bytes(str(name_input)))
         config.player_name = str(name_input)
     print(config.player_name)
 
-def give_information():
-    return config.player_name
+
+def set_saved_name():
+    pass
 
 def app_exit():
     global game_is_continue, waiting_for_start, main_menu_is_active, settings_is_active, app_is_active,\
         set_information, choising_game_mode, game_entering_window, waiting_for_connections
+
     data_save()
     set_information = False
     game_is_continue = False
@@ -422,6 +431,7 @@ def app_exit():
     game_entering_window = False
     waiting_for_connections = False
     app_is_active = False
+    online.exit_from_server()
     print(exit)
 
 if __name__ == '__main__':
@@ -449,6 +459,7 @@ if __name__ == '__main__':
     window = pygame.display.set_mode(size)
     pygame.display.flip()
     clock.tick(fps)
+    set_saved_name()
     server_id = socket.gethostname()
     # server_id = '25.41.244.86'
     app_is_active = True
