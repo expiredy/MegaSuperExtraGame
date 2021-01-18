@@ -137,8 +137,7 @@ def lobby_for_connectors():
     print(online.role)
     if online.role == config.host_user:
         start_button = Button('Start', width // 2 - 150, height * 0.815, 300, 150,
-                              func=online.game_start, args=(config.game_start_event,),
-                              outline_lenth=10,
+                              func=game_start, args=(True, ), outline_lenth=10,
                               background=(0, 0, 0), color_of_outline=(205, 205, 205),
                               text_color=(255, 255, 255))
     while waiting_for_connections:
@@ -157,14 +156,22 @@ def lobby_for_connectors():
         pygame.display.flip()
         clock.tick(fps)
 
+def game_start(value=True):
+    global waiting_for_connections, game_is_continue
+    waiting_for_connections, game_is_continue = value, not value
+    with open(config.launch_path, 'r+') as f:
+        read_data = f.read()
+        f.seek(0)
+        f.truncate()
+        f.write("True")
 
 def connection_window():
     global waiting_for_start
     if waiting_for_start:
         get_key = InputField(width // 2 - 250, height * 0.1, 500, 150, func=online.connect)
-        online.send(give_information())
+        online.send(config.give_info())
         stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_active,
-                             args=(False,), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
+                             args=(False, ), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while waiting_for_start:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -224,6 +231,7 @@ def show_results():
                 app_exit()
 
 def main_game_script():
+    global game_is_continue
     key_for_room = TextViewer(config.room_key, width // 2 - 150, height * 0.1, 300, 150,)
     window.fill((122, 122, 122))
     # client.run(server_id)
@@ -407,9 +415,10 @@ def gamer_exit():
 def data_save(name_input=None):
 
     if name_input:
-        with open(config.name_path, 'rt') as f:
+        with open(config.name_path, 'r+') as f:
+            f.seek(0)
             f.truncate()
-            f.write(bytes(str(name_input)))
+            f.write(str(name_input))
         config.player_name = str(name_input)
     print(config.player_name)
 

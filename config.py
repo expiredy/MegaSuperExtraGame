@@ -1,23 +1,23 @@
 import random
 
 def save(value, number):
-    with open(server_path, 'wb') as f:
+    with open(server_path, 'r+') as f:
         read_data = f.read()
         f.truncate()
         for data_line in read_data.split('\n')[:number]:
-            f.write(bytes(str(data_line)))
-        f.write(bytes(str(value)), decode='UTF-8')
+            f.write(str(data_line))
+        f.write(str(value))
         for data_line in read_data.split('\n')[number + 1:]:
-            f.write(bytes(str(data_line)))
+            f.write(str(data_line))
     return value
 
 def give_info():
-    return {name_key: player_name}
+    return str({name_key: player_name})
 
 #______________________________________________pathes__________________________________________
 name_path = 'data/username.txt'
 server_path = 'data/server_config.txt'
-
+launch_path = 'data/launch_config.txt'
 
 #_______________________________________dict's variables of keys_________________________________
 connection_key = 'clientConnection'
@@ -39,7 +39,7 @@ viewer_key = 'viewer'
 
 #___________________________________________flags_for_game____________________________________
 path = 'data/game_flags_config.txt'
-with open(path, 'rt') as f:
+with open(path, 'r+') as f:
     read_data = f.read().split('\n')
     voiting = (eval(read_data[0]), 0)
     mini_games = (eval(read_data[1]), 1)
@@ -54,6 +54,9 @@ game_mode = classic_mode
 user_avatar = 'Sprites\Boi.jpg'
 voiting_started = False
 classic_order = {0: mafia_key, 1: doctor_key, 2: detective_key}
+amount_mafia = 1
+amount_doctors = 1
+amount_detectives = 1
 
 #____________________________________________nicknames___________________________________________
 ExtraTHICCnames = ['ExtraAss228', 'Tom', 'Rapper № 1', 'Letov(Is he is fake one?)', 'CumCopter1488',
@@ -86,8 +89,8 @@ game_over = 'game_is_over'
 
 main_room_id = 798532664717606922
 server_id = 798338351086043136
-server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA.EdqzIfNEMGij1ZElVDIwy2'
-with open(server_path, 'rt') as f:
+server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA.kAR38rY_KbNJGU3VIY8PvPB1-dg'
+with open(server_path, 'r+') as f:
     read_data = f.read().split('\n')
     print(type(read_data))
     server = eval(read_data[0])
