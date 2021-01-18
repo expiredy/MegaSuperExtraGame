@@ -37,6 +37,7 @@ with open(path, 'rt') as f:
     mini_games = (eval(read_data[1]), 1)
     sleeping = (eval(read_data[2]), 2)
     show_result = (eval(read_data[3]), 3)
+    player_choiced = (eval(read_data[4]), 4)
 #____________________________________________game constans_____________________________________
 
 classic_mode = 'classic'
@@ -67,8 +68,8 @@ condition_for_sleep = 'sleep'
 
 #_________________________________________server's events_________________________________________
 connected_event = 'connected'
-start_event = 'start'
 dead_event = 'dead'
+game_start_event = 'game_started'
 message_sended = 'message_send'
 vote_event = {mafia_key}
 
@@ -77,7 +78,7 @@ vote_event = {mafia_key}
 path = 'data/server_config.txt'
 main_room_id = 798532664717606922
 server_id = 798338351086043136
-server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA._eQmUSng6ff7Sc7xEFk1HPxw7e'
+server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA._eQmUSng6ff7Sc7xEFk1HPxw7eQ'
 with open(path, 'rt') as f:
     read_data = f.read().split('\n')
     print(type(read_data))

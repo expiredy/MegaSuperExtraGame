@@ -121,11 +121,6 @@ def main_menu_script():
         if ret == True:
             window.blit(pygame.image.frombuffer(frame, frame.shape[1::-1], "BGR"), (0, 0))
             window.blit(mafia_logo.image, mafia_logo.rect)
-            start_button.draw(window)
-            settings_button.draw(window)
-            customize_yourself.draw(window)
-            exit_button.draw(window)
-            pygame.display.flip()
         # background_video.update()
         # window.blit(background_video.image, background_video.rect)
         window.blit(mafia_logo.image, mafia_logo.rect)
