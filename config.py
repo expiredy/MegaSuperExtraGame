@@ -1,8 +1,14 @@
 import random
 
-def save(value):
+def save(value, number):
     with open(path, 'wb') as f:
+        read_data = f.read()
+        f.truncate()
+        for data_line in read_data.split('\n')[:number]:
+            f.write(bytes(str(data_line)))
         f.write(bytes(str(value)), decode='UTF-8')
+        for data_line in read_data.split('\n')[number + 1:]:
+            f.write(bytes(str(data_line)))
     return value
 
 #_______________________________________dict's variables of keys_________________________________
@@ -24,12 +30,13 @@ inhabitants_key = 'inhabitants'
 viewer_key = 'viewer'
 
 #___________________________________________flags_for_game____________________________________
-
-voiting = False
-mini_games = False
-sleeping = False
-show_result = False
-
+path = 'data/game_flags_config.txt'
+with open(path, 'rt') as f:
+    read_data = f.read().split('\n')
+    voiting = (eval(read_data[0]), 0)
+    mini_games = (eval(read_data[1]), 1)
+    sleeping = (eval(read_data[2]), 2)
+    show_result = (eval(read_data[3]), 3)
 #____________________________________________game constans_____________________________________
 
 classic_mode = 'classic'
@@ -70,7 +77,7 @@ vote_event = {mafia_key}
 path = 'data/server_config.txt'
 main_room_id = 798532664717606922
 server_id = 798338351086043136
-server_token = ''
+server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA._eQmUSng6ff7Sc7xEFk1HPxw7e'
 with open(path, 'rt') as f:
     read_data = f.read().split('\n')
     print(type(read_data))

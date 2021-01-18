@@ -192,6 +192,7 @@ def start_connection():
     online.create()
 
 def sleeping():
+
     while config.sleeping:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

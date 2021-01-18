@@ -245,9 +245,13 @@ class TextViewer():
 class Chat(InputField):
     def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record",
                  font_size=50, text_color=(255, 0, 0), initial_text='', func=None,
-                 background=(155,155,155), input_is_active=True)players, height_tab=15):
+                 background=(155,155,155), input_is_active=True, players=[], height_tab=15):
         self.printed_messages = []
         self.height_tab = height_tab
+
+    def __text_calculation(self, text):
+        pygame.font.init()
+        myfont = pygame.font.SysFont(self.font_for_text, self.font_size)
 
     def draw(self, canvas):
         super().draw()

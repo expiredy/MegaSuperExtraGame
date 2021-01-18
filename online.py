@@ -9,6 +9,7 @@ server = None
 passwords = []
 role = None
 bad_symbols = ['l', 'I', '1', '0', 'O', 'o']
+total_members = {}
 
 
 class Player:
@@ -53,21 +54,22 @@ class Server(discord.Client):
 
     async def on_message(self, message):
         print(message)
-        separator = ''
+        separator = ' '
         if message.channel.id == self.id_of_room:
             if self.connection_type == config.host_user:
-                if message.content.startswith(config.connected_event):
+                if message.content.split(separator)[0] == config.connected_event:
+                    player_data = message.content.split(separator)
+                    new_player = Player(total_members.keys())
+                elif message.content.split(separator)[0] == config.dead_event:
                     pass
-                elif message.content.split(separator)[0].isdigit():
-                    pass
-                elif message.content.startswith(config.dead_event):
-                    pass
-                elif message.content.startswith(config.vote_event):
+                elif message.content.split(separator)[0] == config.vote_event:
                     pass
             if message.content.split(separator)[0] == config.game_start_event:
                 pass
-            if message.content.split(separator)[0] == config.message_sended:
+            elif message.content.split(separator)[0] == config.message_sended:
                 print(message.content)
+            elif message.content.split(separator)[0] == config.player_choiced:
+                pass
             # elif message.content.split(separator)[0] == config.t_event:
             #     pass
 
@@ -85,17 +87,15 @@ def generate_key(len_of_password=6):
     return ''.join(key.lower().split())
 
 
-def activate(token, server):
+def activate(token):
     global role
     role = config.host_user
-    server.value = Server(role)
+    config.server = Server(role)
     config.server.run(token)
 
 
 def create():
-
-    num = multiprocess.Array( Server(config.host_user),  range(2))
-    new_thread = multiprocess.Process(target=activate, args=(config.server_token, num))
+    new_thread = multiprocess.Process(target=activate, args=(config.server_token, ))
     new_thread.start()
     return
 
