@@ -4,10 +4,12 @@ import random
 import string
 import asyncio
 import multiprocess
+from threading import Thread
 from multiprocess import Process, Lock
 server = None
 passwords = []
 role = None
+new_thread = None
 bad_symbols = ['l', 'I', '1', '0', 'O', 'o']
 total_members = {}
 
@@ -32,11 +34,17 @@ class Player:
 
 
 class Server(discord.Client):
+    separator = ' '
     def __init__(self, connection_type=config.connected_user):
         super().__init__()
+        waiting_for_start = Thread(target=self.__checking_for_start)
+        waiting_for_start.start()
         self.generated_key = None
         self.connection_type = connection_type
         self.id_of_room = None
+
+    def __checking_for_start(self):
+        pass
 
     def check_room(self, key):
         return key in self.guild.channels
@@ -50,27 +58,30 @@ class Server(discord.Client):
             self.guild = self.get_guild(config.server_id)
             self.channel = await self.get_channel(config.main_room_id).clone(name=self.generated_key, reason=None)
             self.id_of_room = self.channel.id
+            await self.channel.send(config.give_info())
             await self.channel.send(config.player_name + " connected")
 
     async def on_message(self, message):
         print(message)
-        separator = ' '
+
         if message.channel.id == self.id_of_room:
             if self.connection_type == config.host_user:
-                if message.content.split(separator)[0] == config.connected_event:
-                    player_data = message.content.split(separator)
+                if message.content.split(self.separator)[0] == config.connected_event:
+                    player_data = message.content.split(self.separator)
                     new_player = Player(total_members.keys())
-                elif message.content.split(separator)[0] == config.dead_event:
+                elif message.content.split(self.separator)[0] == config.dead_event:
                     pass
-                elif message.content.split(separator)[0] == config.vote_event:
+                elif message.content.split(self.separator)[0] == config.vote_event:
                     pass
-            if message.content.split(separator)[0] == config.game_start_event:
+            if message.content.split(self.separator)[0] == config.game_start_event:
                 pass
-            elif message.content.split(separator)[0] == config.message_sended:
+            elif message.content.split(self.separator)[0] == config.message_sended:
                 print(message.content)
-            elif message.content.split(separator)[0] == config.player_choiced:
+            elif message.content.split(self.separator)[0] == config.player_choiced:
                 pass
-            # elif message.content.split(separator)[0] == config.t_event:
+            elif message.content.split(self.separator)[0] == config.game_over:
+                pass
+            # elif message.content.split(self.separator)[0] == config.t_event:
             #     pass
 
 
@@ -95,16 +106,29 @@ def activate(token):
 
 
 def create():
+    global new_thread, role
+    role = config.host_user
+
     new_thread = multiprocess.Process(target=activate, args=(config.server_token, ))
     new_thread.start()
     return
 
 def connect(generated_key):
+    global new_thread, role
+    role = config.connected_user
     new_thread = multiprocess.Process(target=activate, args=(config.server_token, config.server))
     new_thread.start()
     config.server = new_thread.get()
     return
 
+def exit_from_server():
+    print("SICK")
+    try:
+        new_thread.join()
+        print('SUCK')
+        return
+    except:
+        return
 
 def send(text):
     print(config.server)

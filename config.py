@@ -1,7 +1,7 @@
 import random
 
 def save(value, number):
-    with open(path, 'wb') as f:
+    with open(server_path, 'wb') as f:
         read_data = f.read()
         f.truncate()
         for data_line in read_data.split('\n')[:number]:
@@ -10,6 +10,14 @@ def save(value, number):
         for data_line in read_data.split('\n')[number + 1:]:
             f.write(bytes(str(data_line)))
     return value
+
+def give_info():
+    return {name_key: player_name}
+
+#______________________________________________pathes__________________________________________
+name_path = 'data/username.txt'
+server_path = 'data/server_config.txt'
+
 
 #_______________________________________dict's variables of keys_________________________________
 connection_key = 'clientConnection'
@@ -72,14 +80,14 @@ dead_event = 'dead'
 game_start_event = 'game_started'
 message_sended = 'message_send'
 vote_event = {mafia_key}
-
+game_over = 'game_is_over'
 
 #___________________________________________servers data__________________________________________
-path = 'data/server_config.txt'
+
 main_room_id = 798532664717606922
 server_id = 798338351086043136
-server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA._eQmUSng6ff7Sc7xEFk1HPxw7eQ'
-with open(path, 'rt') as f:
+server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA.EdqzIfNEMGij1ZElVDIwy2X5Oaw'
+with open(server_path, 'rt') as f:
     read_data = f.read().split('\n')
     print(type(read_data))
     server = eval(read_data[0])
