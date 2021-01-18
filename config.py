@@ -89,7 +89,7 @@ game_over = 'game_is_over'
 
 main_room_id = 798532664717606922
 server_id = 798338351086043136
-server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA.kAR38rY_KbNJGU3VIY8PvPB1-dg'
+server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA.NgALreWPUDvqrvXDFY6hpTU82Ns'
 with open(server_path, 'r+') as f:
     read_data = f.read().split('\n')
     print(type(read_data))

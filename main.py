@@ -6,8 +6,6 @@ import sys
 import os
 import BackgroundVideo
 import config
-import server
-import client
 import online
 import socket
 from button import Button, TextButton, InputField, TextViewer
