@@ -3,6 +3,8 @@ import discord
 import random
 import string
 import asyncio
+import time
+import os
 import multiprocess
 from threading import Thread
 from multiprocess import Process, Lock
@@ -37,14 +39,22 @@ class Server(discord.Client):
     separator = ' '
     def __init__(self, connection_type=config.connected_user):
         super().__init__()
-        waiting_for_start = Thread(target=self.__checking_for_start)
-        waiting_for_start.start()
+        self.waiting_for_start = Thread(target=self.__checking_for_start)
+        self.waiting_for_start.start()
         self.generated_key = None
+        self.total_players = {}
         self.connection_type = connection_type
         self.id_of_room = None
 
     def __checking_for_start(self):
-        pass
+        while True:
+            time.sleep(1)
+            with open(config.launch_path, 'r+') as f:
+                read_data = f.read().split('\n')[0]
+                print(read_data)
+                if eval(read_data):
+                    config.game_start_event = True
+                    break
 
     def check_room(self, key):
         return key in self.guild.channels
@@ -58,8 +68,7 @@ class Server(discord.Client):
             self.guild = self.get_guild(config.server_id)
             self.channel = await self.get_channel(config.main_room_id).clone(name=self.generated_key, reason=None)
             self.id_of_room = self.channel.id
-            await self.channel.send(config.give_info())
-            await self.channel.send(config.player_name + " connected")
+            await self.channel.send(config.connected_event + self.separator + config.give_info())
 
     async def on_message(self, message):
         print(message)
@@ -69,12 +78,32 @@ class Server(discord.Client):
                 if message.content.split(self.separator)[0] == config.connected_event:
                     player_data = message.content.split(self.separator)
                     new_player = Player(total_members.keys())
+                    self.total_players[len(list(self.total_players.keys()))] = new_player
+
                 elif message.content.split(self.separator)[0] == config.dead_event:
                     pass
                 elif message.content.split(self.separator)[0] == config.vote_event:
                     pass
             if message.content.split(self.separator)[0] == config.game_start_event:
-                pass
+                if self.connection_type == config.host_user:
+                    self.amount_players = len(list(self.total_players.keys()))
+                    players = list(range(0, amount_pslayers))
+                    random.shuffle(players)
+                    for _ in range(config.amount_mafia):
+                        self.total_players[players.pop()].set_role(config.mafia_key)
+                    for _ in range(config.amount_doctors):
+                        self.total_players[players.pop()].set_role(config.doctor_key)
+                    for _ in range(config.amount_detectives):
+                        self.total_players[players.pop()].set_role(config.detective_key)
+                    if mode != config.classic_mode:
+                        pass
+                    for _ in range(len(players)):
+                        self.total_players[players.pop()].set_role(config.inhabitants_key)
+                    for people in self.total_players:
+                        await self.channel.send()
+                else:
+                    pass
+
             elif message.content.split(self.separator)[0] == config.message_sended:
                 print(message.content)
             elif message.content.split(self.separator)[0] == config.player_choiced:
@@ -108,7 +137,6 @@ def activate(token):
 def create():
     global new_thread, role
     role = config.host_user
-
     new_thread = multiprocess.Process(target=activate, args=(config.server_token, ))
     new_thread.start()
     return
@@ -122,10 +150,8 @@ def connect(generated_key):
     return
 
 def exit_from_server():
-    print("SICK")
     try:
         new_thread.join()
-        print('SUCK')
         return
     except:
         return
