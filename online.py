@@ -37,11 +37,11 @@ class Player:
 
 class Server(discord.Client):
     separator = ' '
-    def __init__(self, connection_type=config.connected_user):
+    def __init__(self, key, connection_type=config.connected_user):
         super().__init__()
         self.waiting_for_start = Thread(target=self.__checking_for_start)
         self.waiting_for_start.start()
-        self.generated_key = None
+        self.generated_key = key
         self.total_players = {}
         self.connection_type = connection_type
         self.id_of_room = None
@@ -56,19 +56,21 @@ class Server(discord.Client):
                     config.game_start_event = True
                     break
 
-    def check_room(self, key):
-        return key in self.guild.channels
-
     async def sender(self, text):
         await self.get_channel(self.id_of_room).send(text)
 
     async def on_ready(self):
-        self.generated_key = generate_key()
+        self.guild = self.get_guild(config.server_id)
+        self.channel = None
         if self.connection_type == config.host_user:
-            self.guild = self.get_guild(config.server_id)
+            self.generated_key = generate_key()
             self.channel = await self.get_channel(config.main_room_id).clone(name=self.generated_key, reason=None)
-            self.id_of_room = self.channel.id
-            await self.channel.send(config.connected_event + self.separator + config.give_info())
+        else:
+            for channel in self.guild.channels:
+                if channel.name == self.generated_key:
+                    self.channel = channel
+        self.id_of_room = self.channel.id
+        await self.channel.send(config.connected_event + self.separator + config.give_info())
 
     async def on_message(self, message):
         print(message)
@@ -127,41 +129,12 @@ def generate_key(len_of_password=6):
     return ''.join(key.lower().split())
 
 
-def activate(token):
-    global role
-    role = config.host_user
-    config.server = Server(role)
-    config.server.run(token)
-
-
 def create():
-    global new_thread, role
+    global new_thread
     role = config.host_user
-    new_thread = multiprocess.Process(target=activate, args=(config.server_token, ))
-    new_thread.start()
     return
 
 def connect(generated_key):
-    global new_thread, role
+    global new_thread
     role = config.connected_user
-    new_thread = multiprocess.Process(target=activate, args=(config.server_token, config.server))
-    new_thread.start()
-    config.server = new_thread.get()
     return
-
-def exit_from_server():
-    try:
-        new_thread.join()
-        return
-    except:
-        return
-
-def send(text):
-    print(config.server)
-    if config.server:
-        ioloop = asyncio.get_event_loop()
-        print(ioloop)
-        new_task = ioloop.create_task(config.server.sender(text))
-        asyncio.wait(new_task)
-        ioloop.run_until_complete(new_task)
-        ioloop.close()

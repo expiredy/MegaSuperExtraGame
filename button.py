@@ -147,7 +147,7 @@ class InputField(Button):
 
     def checker_for_upper_letter(self, event):
         if event.key in [pygame.K_LSHIFT, pygame.K_RSHIFT]:
-                self.is_upper = False
+            self.is_upper = False
 
     def activate_input(self, event):
         if self.input_is_active:
@@ -165,7 +165,7 @@ class InputField(Button):
                 pass
             elif event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
                 if self.func:
-                    self.thread = Thread(target=self.func, args=(self.text))
+                    self.thread = Thread(target=self.func, args=(self.text, ))
                     self.thread.start()
                 self.input_is_active = False
             elif event.key in [pygame.K_LSHIFT, pygame.K_RSHIFT]:

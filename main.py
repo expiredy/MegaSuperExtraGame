@@ -6,7 +6,8 @@ import sys
 import os
 import BackgroundVideo
 import config
-import online
+import server
+import client
 import socket
 from button import Button, TextButton, InputField, TextViewer
 from threading import Thread
@@ -74,7 +75,6 @@ def load_image(name, colorkey=None):
     image = pygame.image.load(fullname)
     return image
 
-
 def main_menu_script():
     global width, height
     start_button = Button('Start', width // 2 - 150, height // 2 - 100, 300, 150, func=game_entering,
@@ -132,8 +132,8 @@ def main_menu_script():
 
 def lobby_for_connectors():
     global waiting_for_connections
-    print(online.role)
-    if online.role == config.host_user:
+    if config.role == config.host_user:
+        game_server = server.Server()
         start_button = Button('Start', width // 2 - 150, height * 0.815, 300, 150,
                               func=game_start, args=(True, ), outline_lenth=10,
                               background=(0, 0, 0), color_of_outline=(205, 205, 205),
@@ -143,31 +143,26 @@ def lobby_for_connectors():
             if event.type == pygame.QUIT:
                 app_exit()
             elif event.type == pygame.MOUSEMOTION:
-                if online.role == config.host_user and start_button.is_targeted(event.pos):
+                if config.role == config.host_user and start_button.is_targeted(event.pos):
                     start_button.target_animation()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if online.role == config.host_user:
+                if config.role == config.host_user:
                     start_button.is_pressed(event.pos)
         window.fill((140, 20, 30))
-        if online.role == config.host_user:
+        if config.role == config.host_user:
             start_button.draw(window)
         pygame.display.flip()
         clock.tick(fps)
 
 def game_start(value=True):
     global waiting_for_connections, game_is_continue
-    waiting_for_connections, game_is_continue = value, not value
-    with open(config.launch_path, 'r+') as f:
-        read_data = f.read()
-        f.seek(0)
-        f.truncate()
-        f.write("True")
+    waiting_for_connections, game_is_continue = not value, value
 
 def connection_window():
     global waiting_for_start
     if waiting_for_start:
-        get_key = InputField(width // 2 - 250, height * 0.1, 500, 150, func=online.connect)
-        online.send(config.give_info())
+        get_key = InputField(width // 2 - 250, height * 0.1, 500, 150, func=connect_to_online)
+        # client.send(config.give_info())
         stop_button = Button('No, I am out of there', width // 2 - 150, height * 0.8, 300, 150, func=game_active,
                              args=(False, ), outline_lenth=10, background=(0, 0, 0), color_of_outline=(205, 205, 205))
     while waiting_for_start:
@@ -191,8 +186,11 @@ def connection_window():
 
     window.fill((0, 0, 0))
 
-def start_connection():
-    online.create()
+def connect_to_online(key):
+    global game_is_continue, waiting_for_start
+    waiting_for_start, game_is_continue = False, True
+    client.run(key)
+
 
 def sleeping():
 
@@ -239,7 +237,6 @@ def main_game_script():
         mini_game()
         show_results()
     window.fill((0, 0, 0))
-
 
 def choicing_game_mode_window():
     global choising_game_mode
@@ -347,7 +344,6 @@ def enter_game():
         back_button.draw(window)
         pygame.display.flip()
         clock.tick(fps)
-        window.fill((0, 0, 0))
 
 def settings():
     pass
@@ -366,11 +362,8 @@ def game_create(value=True):
 
 def  starting_classic_game(value=True):
     global waiting_for_connections, choising_game_mode
-    if value:
-        start_connection()
     config.game_mode = config.classic_mode
     waiting_for_connections, choising_game_mode = value, not value
-
 
 def set_info_for_game(value=True):
     global main_menu_is_active, set_information
@@ -404,7 +397,6 @@ def main_script():
 
         main_game_script()
 
-
 def gamer_exit():
     global waiting_for_start, main_menu_is_active
     waiting_for_start = False
@@ -419,7 +411,6 @@ def data_save(name_input=None):
             f.write(str(name_input))
         config.player_name = str(name_input)
     print(config.player_name)
-
 
 def set_saved_name():
     pass
@@ -438,7 +429,7 @@ def app_exit():
     game_entering_window = False
     waiting_for_connections = False
     app_is_active = False
-    online.exit_from_server()
+    config.exit_from_server()
     print(exit)
 
 if __name__ == '__main__':

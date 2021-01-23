@@ -15,10 +15,10 @@ def give_info():
     return str({name_key: player_name})
 
 #______________________________________________pathes__________________________________________
-name_path = 'data/username.txt'
-server_path = 'data/server_config.txt'
-launch_path = 'data/launch_config.txt'
-
+# name_path = 'data/username.txt'
+# server_path = 'data/server_config.txt'
+# launch_path = 'data/launch_config.txt'
+# game_path = 'data/game_flags_config.txt'
 #_______________________________________dict's variables of keys_________________________________
 connection_key = 'clientConnection'
 address_key = 'ip'
@@ -30,22 +30,26 @@ choicing_key = 'choicePlayer'
 
 listener_key = 'listen'
 sender_key = 'send'
+role_key = 'role'
 room_key = ''
 mafia_key = 'mafia'
 doctor_key = 'doctor'
 detective_key = 'detective'
 inhabitants_key = 'inhabitants'
 viewer_key = 'viewer'
+#__________________________________________players roles___________________________________________
+viewer = 'EyeInTheSky'
+connected_user = 'user'
+host_user = 'admin'
+
 
 #___________________________________________flags_for_game____________________________________
-path = 'data/game_flags_config.txt'
-with open(path, 'r+') as f:
-    read_data = f.read().split('\n')
-    voiting = (eval(read_data[0]), 0)
-    mini_games = (eval(read_data[1]), 1)
-    sleeping = (eval(read_data[2]), 2)
-    show_result = (eval(read_data[3]), 3)
-    player_choiced = (eval(read_data[4]), 4)
+voiting = False
+mini_games = False
+sleeping = False
+show_result = False
+player_choiced = False
+accepting = False
 #____________________________________________game constans_____________________________________
 
 classic_mode = 'classic'
@@ -57,6 +61,7 @@ classic_order = {0: mafia_key, 1: doctor_key, 2: detective_key}
 amount_mafia = 1
 amount_doctors = 1
 amount_detectives = 1
+role = host_user
 
 #____________________________________________nicknames___________________________________________
 ExtraTHICCnames = ['ExtraAss228', 'Tom', 'Rapper № 1', 'Letov(Is he is fake one?)', 'CumCopter1488',
@@ -64,11 +69,6 @@ ExtraTHICCnames = ['ExtraAss228', 'Tom', 'Rapper № 1', 'Letov(Is he is fake on
 
 
 player_name = random.choice(ExtraTHICCnames)
-
-#__________________________________________players roles___________________________________________
-viewer = 'EyeInTheSky'
-connected_user = 'user'
-host_user = 'admin'
 
 
 #_________________________________________players conditions_____________________________________
@@ -87,11 +87,13 @@ game_over = 'game_is_over'
 
 #___________________________________________servers data__________________________________________
 
-main_room_id = 798532664717606922
-server_id = 798338351086043136
-server_token = 'Nzk4MzQ4MDAyMjkyMDA2OTIy.X_zthA.NgALreWPUDvqrvXDFY6hpTU82Ns'
-with open(server_path, 'r+') as f:
-    read_data = f.read().split('\n')
-    print(type(read_data))
-    server = eval(read_data[0])
-    room_id = eval(read_data[1])
+server = None
+
+# main_room_id = 798532664717606922
+# server_id = 798338351086043136
+# server_token = ''
+# with open(server_path, 'r+') as f:
+#     read_data = f.read().split('\n')
+#     print(type(read_data))
+#     server = eval(read_data[0])
+#     room_id = eval(read_data[1])

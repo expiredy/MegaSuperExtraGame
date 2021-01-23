@@ -6,8 +6,6 @@ from threading import Thread
 SERVER =  socket.gethostname()
 PORT = 9090
 
-
-
 def listen():
     global client
     while True:
@@ -24,15 +22,14 @@ def listen():
 
 
 def send(out_data):
-    while True:
-        try:
-            client.sendall(bytes(out_data, 'UTF-8'))
-            if out_data == 'bye':
-                break
-        except socket.error:
-            print('Lost connection to server [S]')
-            client.close()
-            break
+    global client
+    try:
+        client.sendall(bytes(out_data, 'UTF-8'))
+        if out_data == 'bye':
+            exit()
+    except socket.error:
+        print('Lost connection to server [S]')
+        client.close()
 
 def run(server_id):
     global client
@@ -41,12 +38,10 @@ def run(server_id):
     print("Connected to server")
 
     thread_listen = Thread(target=listen)
-    # thread_send = Thread(target=send)
 
     thread_listen.start()
-    # thread_send.start()
 
     thread_listen.join()
 
 if __name__ == '__main__':
-    run('25.114.239.89')
+    run('localhost')
