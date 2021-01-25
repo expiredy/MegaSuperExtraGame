@@ -1,7 +1,8 @@
-__all__ = ('Button', 'TextButton', 'InputField', 'TextViewer')
+__all__ = ('Button', 'TextButton', 'InputField', 'TextViewer', 'VoitingBox', 'Chat')
 
 
 import pygame
+import config
 from threading import Thread
 from time import sleep
 
@@ -16,6 +17,8 @@ class Button():
         self.button_text = str(button_text)
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
         self.color_of_outline, self.outline_lenth = color_of_outline, outline_lenth
+        self.started_color = text_color
+        self.animated_color = tuple([color - 15 if (color - 15 >= 0) else color for color in list(text_color) ])
         self.is_animation_started = False
 
         try:
@@ -75,11 +78,13 @@ class Button():
 
     def target_animation(self):
         if self.normal_size and not self.is_animation_started:
-            self.new_animation = Thread(target=self.animation, args=(1,))
-            self.new_animation.start()
+            self.text_color = self.animated_color
+            # self.new_animation = Thread(target=self.animation, args=(1,))
+            # self.new_animation.start()
         elif self.bigger_size and not self.is_animation_started:
-            self.new_animation = Thread(target=self.animation, args=(-1,))
-            self.new_animation.start()
+            self.text_color
+            # self.new_animation = Thread(target=self.animation, args=(-1,))
+            # self.new_animation.start()
 
 
     def is_targeted(self, pos, animation=False):
@@ -243,15 +248,32 @@ class TextViewer():
         canvas.blit(textsurface, (self.x_cord, self.y_cord + (self.y_lenth - myfont.size(self.text)[1]) // 2))
 
 class Chat(InputField):
+    separator = 15
+
     def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record",
                  font_size=50, text_color=(255, 0, 0), initial_text='', func=None,
+                 chat_history = config.chat_history,
                  background=(155,155,155), input_is_active=True, players=[], height_tab=15):
-        self.printed_messages = []
+        self.history = chat_history
         self.height_tab = height_tab
-
-    def __text_calculation(self, text):
-        pygame.font.init()
-        myfont = pygame.font.SysFont(self.font_for_text, self.font_size)
+        self.free_space_on_screen = y_lenth
 
     def draw(self, canvas):
-        super().draw()
+        pygame.font.init()
+        myfont = pygame.font.SysFont(self.font_for_text, self.font_size)
+        pygame.draw.rect(canvas, self.background, (self.x_cord, self.y_cord, self.x_lenth, self.y_lenth))
+        for message_key in list(self.history.keys()):
+            message = history[message_key][config.author_key] + ': ' +  history[message_key][config.context_key]
+            text = myfont.render(message, False, self.text_color)
+            text_width = text.get_width()
+            text_height = text.get_height()
+            self.free_space_on_screen -= (text.get_height() + separator)
+            if self.free_space_on_screen <= 0:
+                break
+            canvas.blit(textsurface, (self.x_cord + self.separator, self.free_space_on_screen))
+
+
+class VoitingBox(Button):
+    def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record",
+                 font_size=50, text_color=(255, 0, 0),):
+        pass

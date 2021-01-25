@@ -9,9 +9,14 @@ import config
 import server
 import client
 import socket
-from button import Button, TextButton, InputField, TextViewer
+from button import Button, TextButton, InputField, TextViewer, VoitingBox, Chat
 from threading import Thread
 from screeninfo import get_monitors
+
+
+available_games = {}
+
+#_________________________________________Sprites________________________________
 
 class AnimatedSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, columns, rows, x, y):
@@ -34,6 +39,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
     def update(self):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
+
 
 class FolderWithSprites(pygame.sprite.Sprite):
     max_frame = 0
@@ -60,12 +66,14 @@ class FolderWithSprites(pygame.sprite.Sprite):
         else:
             self.frame_counter += 1
 
+
 class logo_constructor(pygame.sprite.Sprite):
     def __init__(self, name, x_cord=0, y_cord=0, x_lenth=1920, y_lenth=1080):
         self.image = load_image(name)
         self.image = pygame.transform.scale(self.image, (x_lenth, y_lenth))
         self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
         self.rect = pygame.Rect(self.x_cord, self.y_cord, self.x_lenth, self.y_lenth)
+
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('Sprites', name)
@@ -74,6 +82,8 @@ def load_image(name, colorkey=None):
         sys.exit()
     image = pygame.image.load(fullname)
     return image
+
+#_____________________________________Game's main loop__________________________________
 
 def main_menu_script():
     global width, height
@@ -134,6 +144,7 @@ def lobby_for_connectors():
     global waiting_for_connections
     if config.role == config.host_user:
         game_server = server.Server()
+        key_for_room = TextViewer(config.room_key, width // 2 - 150, height * 0.1, 300, 150, )
         start_button = Button('Start', width // 2 - 150, height * 0.815, 300, 150,
                               func=game_start, args=(True, ), outline_lenth=10,
                               background=(0, 0, 0), color_of_outline=(205, 205, 205),
@@ -148,15 +159,12 @@ def lobby_for_connectors():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if config.role == config.host_user:
                     start_button.is_pressed(event.pos)
+        key_for_room.draw(window)
         window.fill((140, 20, 30))
         if config.role == config.host_user:
             start_button.draw(window)
         pygame.display.flip()
         clock.tick(fps)
-
-def game_start(value=True):
-    global waiting_for_connections, game_is_continue
-    waiting_for_connections, game_is_continue = not value, value
 
 def connection_window():
     global waiting_for_start
@@ -186,21 +194,20 @@ def connection_window():
 
     window.fill((0, 0, 0))
 
-def connect_to_online(key):
-    global game_is_continue, waiting_for_start
-    waiting_for_start, game_is_continue = False, True
-    client.run(key)
-
-
 def sleeping():
-
+    chat = Chat
     while config.sleeping:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 app_exit()
 
 def voiting():
-    voiting_for_role_id = 0
+    if config.voiting:
+        # server = config.players
+        voiting_for_role_id = 0
+        voiting_box = VoitingBox()
+
+
     while config.voiting:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -209,12 +216,12 @@ def voiting():
                 pass
         if config.voiting_started:
             pass
-        key_for_room.draw(window)
         pygame.display.flip()
         clock.tick(fps)
 
-
 def mini_game():
+    if config.mini_games:
+        miniGames.load_game()
     while config.mini_games:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -225,18 +232,6 @@ def show_results():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 app_exit()
-
-def main_game_script():
-    global game_is_continue
-    key_for_room = TextViewer(config.room_key, width // 2 - 150, height * 0.1, 300, 150,)
-    window.fill((122, 122, 122))
-    # client.run(server_id)
-    while game_is_continue:
-        sleeping()
-        voiting()
-        mini_game()
-        show_results()
-    window.fill((0, 0, 0))
 
 def choicing_game_mode_window():
     global choising_game_mode
@@ -306,10 +301,6 @@ def settings_window():
 def player_choicing_window():
     pass
 
-def save_and_back_to_main_menu(name_input):
-    data_save(name_input)
-    set_info_for_game(False)
-
 def enter_game():
     global game_entering_window
     creating_room = Button('Create', width // 2 - 150, height // 2 - 100, 300, 150, func=choice_game_mode,
@@ -348,6 +339,13 @@ def enter_game():
 def settings():
     pass
 
+#_____________________________________Swithcing functions_______________________________
+
+def connect_to_online(key):
+    global game_is_continue, waiting_for_start
+    waiting_for_start, game_is_continue = False, True
+    client.run(key)
+
 def game_entering(value=True):
     global game_entering_window, main_menu_is_active
     game_entering_window, main_menu_is_active = value, not value
@@ -365,6 +363,10 @@ def  starting_classic_game(value=True):
     config.game_mode = config.classic_mode
     waiting_for_connections, choising_game_mode = value, not value
 
+def game_start(value=True):
+    global waiting_for_connections, game_is_continue
+    waiting_for_connections, game_is_continue = not value, value
+
 def set_info_for_game(value=True):
     global main_menu_is_active, set_information
     set_information = value
@@ -376,6 +378,33 @@ def choice_game_mode(value=True):
 
 def connect_to_room(valie=True):
     pass
+
+def data_save(name_input=None):
+    if name_input:
+        with open(config.name_path, 'r+') as f:
+            f.seek(0)
+            f.truncate()
+            f.write(str(name_input))
+        config.player_name = str(name_input)
+    print(config.player_name)
+
+#__________________________background_functions________________________
+def set_saved_name():
+    pass
+
+def load_games():
+    random.choice(available_games)
+
+def main_game_script():
+    global game_is_continue
+    window.fill((122, 122, 122))
+    # client.run(server_id)
+    while game_is_continue:
+        sleeping()
+        voiting()
+        mini_game()
+        show_results()
+    window.fill((0, 0, 0))
 
 def main_script():
     global waiting_for_start
@@ -397,23 +426,14 @@ def main_script():
 
         main_game_script()
 
+def save_and_back_to_main_menu(name_input):
+    data_save(name_input)
+    set_info_for_game(False)
+
 def gamer_exit():
     global waiting_for_start, main_menu_is_active
     waiting_for_start = False
     main_menu_is_active = True
-
-def data_save(name_input=None):
-
-    if name_input:
-        with open(config.name_path, 'r+') as f:
-            f.seek(0)
-            f.truncate()
-            f.write(str(name_input))
-        config.player_name = str(name_input)
-    print(config.player_name)
-
-def set_saved_name():
-    pass
 
 def app_exit():
     global game_is_continue, waiting_for_start, main_menu_is_active, settings_is_active, app_is_active,\
@@ -429,7 +449,7 @@ def app_exit():
     game_entering_window = False
     waiting_for_connections = False
     app_is_active = False
-    config.exit_from_server()
+    # game_server.exit_from_server()
     print(exit)
 
 if __name__ == '__main__':

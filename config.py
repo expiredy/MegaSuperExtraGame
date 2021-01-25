@@ -28,6 +28,9 @@ disconect_message = 'He disconncted'
 
 choicing_key = 'choicePlayer'
 
+context_key = 'context'
+author_key = 'author'
+
 listener_key = 'listen'
 sender_key = 'send'
 role_key = 'role'
@@ -78,17 +81,22 @@ condition_for_sleep = 'sleep'
 
 
 #_________________________________________server's events_________________________________________
+listen_players = True
 connected_event = 'connected'
 dead_event = 'dead'
+got_mail_event = 'U_got_mail'
 game_start_event = 'game_started'
 message_sended = 'message_send'
+change_info_event = 'change_info'
 vote_event = {mafia_key}
 game_over = 'game_is_over'
 
 #___________________________________________servers data__________________________________________
 
 server = None
-
+players = {}
+total_players_updated = False
+chat_history = {}
 # main_room_id = 798532664717606922
 # server_id = 798338351086043136
 # server_token = ''
