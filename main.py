@@ -1,7 +1,6 @@
 import time
 import random
 import pygame
-import sqlite3
 import sys
 import os
 import BackgroundVideo
@@ -9,12 +8,16 @@ import config
 import server
 import client
 import socket
+from maze import maze_run
 from button import Button, TextButton, InputField, TextViewer, VoitingBox, Chat
 from threading import Thread
 from screeninfo import get_monitors
 
+#__________________________________________consatns___________________________
 
-available_games = {}
+available_games = {maze_run}
+fps = 60
+
 
 #_________________________________________Sprites________________________________
 
@@ -195,7 +198,7 @@ def connection_window():
     window.fill((0, 0, 0))
 
 def sleeping():
-    chat = Chat
+    chat = Chat(400, 500, 600, 900)
     while config.sleeping:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -221,7 +224,7 @@ def voiting():
 
 def mini_game():
     if config.mini_games:
-        miniGames.load_game()
+        load_games()
     while config.mini_games:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -393,7 +396,7 @@ def set_saved_name():
     pass
 
 def load_games():
-    random.choice(available_games)
+    random.choice(available_games)(window)
 
 def main_game_script():
     global game_is_continue
@@ -452,6 +455,7 @@ def app_exit():
     # game_server.exit_from_server()
     print(exit)
 
+#_____________________________Main activity____________________________
 if __name__ == '__main__':
     monitors_data = [monitor for monitor in get_monitors()]
     if len(monitors_data) > 1:
@@ -469,7 +473,7 @@ if __name__ == '__main__':
 
     total_cards = {}
     buttons = {}
-    fps = 60
+
     clock = pygame.time.Clock()
     width, height = monitor.width, monitor.height
     size = width, height

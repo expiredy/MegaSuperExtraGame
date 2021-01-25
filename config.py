@@ -97,6 +97,7 @@ server = None
 players = {}
 total_players_updated = False
 chat_history = {}
+message_to_send = None
 # main_room_id = 798532664717606922
 # server_id = 798338351086043136
 # server_token = ''

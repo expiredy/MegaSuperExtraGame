@@ -20,8 +20,7 @@ class Server:
         self.server.listen(2)
 
         self.accepting = Thread(target=self.accept_players)
-        self.thread_send = Thread(target=self.send)
-
+        self.thread_send = Thread(target=self.sending)
 
         self.thread_send.start()
         self.accepting.start()
@@ -39,7 +38,8 @@ class Server:
                    config.sender_key: None,
                    config.role_key: None}
             self.server_members[len(list(self.server_members.keys()))][config.listener_key].start()
-            self.send(self.separator.join([config.change_info_event, str(len(list(self.server_members.keys())) - 1)]))
+            self.sending(
+                self.separator.join([config.change_info_event, str(len(list(self.server_members.keys())) - 1)]))
 
     def end_sesion(self):
         self.thread_listen.join()
@@ -58,11 +58,14 @@ class Server:
                 id = message.split(self.separator)[1]
 
                 if event == config.change_info_event:
-                    pass
+                    self.sending(separator.join([config.change_info_event, id,]))
                 elif event == config.vote_event:
                     pass
-                if event == config.dead_event:
+                elif event == config.dead_event:
                     pass
+                elif event == config.chat_event:
+                    self.sending(message)
+
                 if message == 'bye':
                     break
                 print(f'From client: {message}')
@@ -72,7 +75,7 @@ class Server:
                 break
 
 
-    def send(self. out_data, default_connection=None):
+    def sending(self, out_data, default_connection=None):
         if not default_connection:
             for connection in [self.server_members[key][config.connection_key] for key in list(self.server_members.keys())
                                if self.server_members[key][config.role_key] != config.viewer_key]:
@@ -108,9 +111,29 @@ class Player:
     def awake(self):
         self.condition = config.condition_for_sleep
 
+def mafia_time():
+    pass
+def healing_time():
+    pass
+def detective_time():
+    pass
+def show_results():
+    pass
+def voiting():
+    pass
+
+def end_game():
+    print("Ha-ha noone won cause game aren't ended")
+
 def main_game():
-    while any([config.players[mafia].is_alive() for mafia in list(config.players.keys()) if config.players[mafia].role == config.mafia_key]):
-        pass
+    while any([config.players[role_key].is_alive() for role_key in list(config.players.keys())
+               if config.players[role_key].role == config.mafia_key]):
+        mafia_time()
+        healing_time()
+        detective_time()
+        show_results()
+        voiting()
+    end_game()
 
 
 

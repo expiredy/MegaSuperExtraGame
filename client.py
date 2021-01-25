@@ -22,10 +22,14 @@ def listen():
                        for i in range(len(message)) is sybol == self.grouper and i + 1 <= len(message)
                        and ''.join(message[i:message[i + 1:].find(self.grouper)].split())]
             print(content)
+            if config.message_to_send:
+                send(separator.join([config.chat_event, config.id, grouper + config.message_to_send + grouper]))
+                config.message_to_send = None
+
             if event == config.change_info_event:
                 content[0]
             elif event == config.got_mail_event:
-                config.chat_history[len(list(config.chat_history.keys()))] = {config.author_key: config.players[id]
+                config.chat_history[len(list(config.chat_history.keys()))] = {config.author_key: config.players[id],
                                                                               config.context_key: content[1]}
 
         except socket.error:

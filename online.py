@@ -57,7 +57,7 @@ class Server(discord.Client):
                     break
 
     async def sender(self, text):
-        await self.get_channel(self.id_of_room).send(text)
+        await self.get_channel(self.id_of_room).sending(text)
 
     async def on_ready(self):
         self.guild = self.get_guild(config.server_id)
@@ -102,7 +102,7 @@ class Server(discord.Client):
                     for _ in range(len(players)):
                         self.total_players[players.pop()].set_role(config.inhabitants_key)
                     for people in self.total_players:
-                        await self.channel.send()
+                        await self.channel.sending()
                 else:
                     pass
 

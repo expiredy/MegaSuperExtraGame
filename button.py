@@ -252,9 +252,12 @@ class Chat(InputField):
 
     def __init__(self, x_cord, y_cord, x_lenth, y_lenth, font_for_text="Rockin' Record",
                  font_size=50, text_color=(255, 0, 0), initial_text='', func=None,
-                 chat_history = config.chat_history,
+                 chat_history=config.chat_history,
                  background=(155,155,155), input_is_active=True, players=[], height_tab=15):
+        self.x_cord, self.y_cord, self.x_lenth, self.y_lenth = x_cord, y_cord, x_lenth, y_lenth
+        self.font_size, self.font_for_text = font_size, font_for_text
         self.history = chat_history
+        self.background = background
         self.height_tab = height_tab
         self.free_space_on_screen = y_lenth
 
